@@ -18,10 +18,6 @@ app.use(userRoutes)
 app.use(postRoutes)
 
 
-app.get("/", (req, res) => {
-    res.status(200).end("welcome")
-})
-
 app.use((error, req, res, next) => {
     res.status(error.status || 500)
     res.json({
