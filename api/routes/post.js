@@ -7,11 +7,9 @@ const PostController = require('../controllers/post')
 
 router.use(checkAuth);
 
-// router.get("/quiz/view-allQuizlist", checkUser(5), QuizController.view_AllQuizlist);
+router.post("/post/create-post", PostController.create_post)
 
-// router.get("/quiz/view-quizlist", checkUser(4), QuizController.view_quizlist);
-
-router.post("/post/create-post", PostController.create_post);
+router.get("/post/view-post", PostController.view_post)
 
 
 
