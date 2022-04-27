@@ -2,9 +2,13 @@ const { DataTypes } = require('sequelize')
 
 const sequelize = require('../config/db');
 
-const { STRING, TEXT } = DataTypes
+const { INTEGER, STRING, TEXT } = DataTypes
 
 const post = sequelize.define('post', {
+    user_id: {
+        type: INTEGER,
+        allowNull: false
+    },
     content: {
         type: TEXT,
         allowNull: false

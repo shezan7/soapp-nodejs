@@ -4,19 +4,19 @@ const sequelize = require('../config/db');
 
 const { INTEGER } = DataTypes
 
-const userPostMapping = sequelize.define('user_post_mapping', {
+const follow = sequelize.define('follow', {
     user_id: {
         type: INTEGER,
         allowNull: false
     },
-    post_id: {
+    following_user: {
         type: INTEGER,
         allowNull: false
     }
 }, {
     schema: "soapp",
-    timestamps: false,
+    timestamps: true,
     // freezeTableName: true
 })
 
-module.exports = userPostMapping 
+module.exports = follow 

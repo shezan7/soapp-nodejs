@@ -14,6 +14,9 @@ router.patch("/users/update-info", checkAuth, UsersController.users_update)
 
 router.get("/users/view-all-user", checkAuth, UsersController.users_viewAll)
 
+router.post("/users/follow", checkAuth, UsersController.users_follow)
+
+
 
 
 

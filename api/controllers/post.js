@@ -2,7 +2,6 @@ const db = require('../config/db')
 const { QueryTypes } = require('sequelize')
 
 const Post = require('../sequelize-models/Post')
-const UserPostMapping = require('../sequelize-models/UserPostMapping')
 
 
 
@@ -107,28 +106,28 @@ exports.create_post = async (req, res, next) => {
             })
         }
 
-        const newPost = await Post.create({
-            content,
-            picture
-        })
-        // console.log(newPost)
-        // console.log("newPostID", newPost.id)
-
-        if (!newPost) {
-            const error = new Error('Post not created!');
-            error.status = 500;
-            throw error;
+        if (req.user.id) {
+            const newPost = await Post.create({
+                content,
+                picture,
+                user_id: req.user.id
+            })
+            // console.log(newPost)
+            // console.log("newPostID", newPost.id)   
+            if (!newPost) {
+                const error = new Error('Post not created!');
+                error.status = 500;
+                throw error;
+            }    
+            res.json({
+                data: "New Post created successfully",
+                newPost
+            })    
+        } else {
+            return res.status(403).json("Sorry, You are not eligible")
         }
-        const userPost = await UserPostMapping.create({
-            user_id: req.user.id,
-            post_id: newPost.id
-        })
-
-        res.json({
-            data: "New Post created successfully",
-            newPost
-        })
     }
+
     catch (err) {
         console.log(err)
         res.status(500).json({

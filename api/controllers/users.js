@@ -2,9 +2,9 @@ const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 
 const User = require('../sequelize-models/User')
+const Follow = require('../sequelize-models/Follow')
 
 const { Op } = require("sequelize")
-const user = require('../sequelize-models/User')
 
 
 
@@ -148,6 +148,57 @@ exports.users_viewAll = async (req, res, next) => {
             userAll
         })
     }
+    catch (err) {
+        console.log(err)
+        res.status(500).json({
+            error: err
+        })
+    }
+}
+
+exports.users_follow = async (req, res, next) => {
+    console.log("follow", req.body)
+
+    try {
+        const { following_user } = req.body;
+        if (following_user === undefined) {
+            return res.status(500).send({
+                message: "Found problem to follow"
+            })
+        }
+
+        // if ((UserFollowMapping[0].user_id.includes(req.user.id)) && (UserFollowMapping[0].follow_id.includes(following))) {
+        //     return res.status(403).json("You already follow this user")
+        // }
+        // else {
+
+        // }
+
+        // console.log(req.user.id)
+        if (req.user.id) {
+            const newFollow = await Follow.create({
+                user_id: req.user.id,
+                following_user
+            })
+            // console.log(newFollow)
+            // console.log("newFollowID", newFollow.id)
+    
+            if (!newFollow) {
+                const error = new Error('Follow not generated!');
+                error.status = 500;
+                throw error;
+            }
+    
+            res.json({
+                data: "New Follow generated successfully",
+                newFollow
+            })
+        }
+        else {
+            return res.status(403).json("Sorry, You are not eligible")
+        } 
+    }
+
     catch (err) {
         console.log(err)
         res.status(500).json({
