@@ -52,6 +52,43 @@ exports.create_post = async (req, res, next) => {
     }
 }
 
+exports.update_post = async (req, res, next) => {
+    console.log("post_update", req.body);
+    // console.log("two", req.user);
+    // console.log("three", req.user.id);
+
+    // const user_id = req.user.id
+
+    try {
+        const { id, content, picture } = req.body;
+        
+        if (req.user.id) {
+            const newPost = await Post.update({
+                content, picture
+            }, {
+                where: {
+                    id
+                }
+            })
+            // console.log(newPost)
+            // console.log("newPostID", newPost.id)   
+            res.json({
+                data: "Post updated successfully",
+                newPost
+            })
+        } else {
+            return res.status(403).json("Sorry, You are not eligible")
+        }
+    }
+
+    catch (err) {
+        console.log(err)
+        res.status(500).json({
+            error: err
+        })
+    }
+}
+
 exports.view_post = async (req, res, next) => {
     // console.log("two", req.user);
     // console.log("three", req.user.id);
@@ -69,7 +106,7 @@ exports.view_post = async (req, res, next) => {
                     soapp.posts p
                 WHERE
                     (p.user_id = ${req.user.id}
-                        OR p.user_id = (SELECT 
+                        OR p.user_id IN (SELECT 
                                             f.following_user 
                                         FROM 
                                             soapp.follows f 
@@ -181,6 +218,43 @@ exports.create_comment = async (req, res, next) => {
             }
             res.json({
                 data: "Comment created successfully",
+                newComment
+            })
+        } else {
+            return res.status(403).json("Sorry, You are not eligible")
+        }
+    }
+
+    catch (err) {
+        console.log(err)
+        res.status(500).json({
+            error: err
+        })
+    }
+}
+
+exports.update_comment = async (req, res, next) => {
+    console.log("comment_update", req.body);
+    // console.log("two", req.user);
+    // console.log("three", req.user.id);
+
+    // const user_id = req.user.id
+
+    try {
+        const { id, content } = req.body;
+
+        if (req.user.id) {
+            const newComment = await Comment.update({
+                content
+            }, {
+                where: {
+                    id
+                }
+            })
+            // console.log(newComment)
+            // console.log("newCommentID", newComment.id)   
+            res.json({
+                data: "Comment updated successfully",
                 newComment
             })
         } else {
