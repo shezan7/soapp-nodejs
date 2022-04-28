@@ -11,6 +11,10 @@ router.post("/post/create-post", PostController.create_post)
 
 router.get("/post/view-post", PostController.view_post)
 
+router.post("/post/create-like", PostController.create_like)
+
+router.post("/post/create-comment", PostController.create_comment)
+
 
 
 module.exports = router;

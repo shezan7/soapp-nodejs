@@ -2,6 +2,8 @@ const db = require('../config/db')
 const { QueryTypes } = require('sequelize')
 
 const Post = require('../sequelize-models/Post')
+const Like = require('../sequelize-models/Like')
+const Comment = require('../sequelize-models/Comment')
 
 
 
@@ -93,6 +95,95 @@ exports.view_post = async (req, res, next) => {
             })
         } 
         else {
+            return res.status(403).json("Sorry, You are not eligible")
+        }
+    }
+
+    catch (err) {
+        console.log(err)
+        res.status(500).json({
+            error: err
+        })
+    }
+}
+
+exports.create_like = async (req, res, next) => {
+    console.log("like_create", req.body);
+    // console.log("two", req.user);
+    // console.log("three", req.user.id);
+
+    // const user_id = req.user.id
+
+    try {
+        const { post_id } = req.body;
+        if (post_id === undefined) {
+            return res.status(500).send({
+                message: "Some problem found"
+            })
+        }
+
+        if (req.user.id) {
+            const newLike = await Like.create({
+                user_id: req.user.id,
+                post_id
+            })
+            // console.log(newLike)
+            // console.log("newLikeID", newLike.id)   
+            if (!newLike) {
+                const error = new Error('Like not created!');
+                error.status = 500;
+                throw error;
+            }
+            res.json({
+                data: "Like created successfully",
+                newLike
+            })
+        } else {
+            return res.status(403).json("Sorry, You are not eligible")
+        }
+    }
+
+    catch (err) {
+        console.log(err)
+        res.status(500).json({
+            error: err
+        })
+    }
+}
+
+exports.create_comment = async (req, res, next) => {
+    console.log("comment_create", req.body);
+    // console.log("two", req.user);
+    // console.log("three", req.user.id);
+
+    // const user_id = req.user.id
+
+    try {
+        const { post_id, content } = req.body;
+        if (post_id === undefined || content === undefined) {
+            return res.status(500).send({
+                message: "Some problem found"
+            })
+        }
+
+        if (req.user.id) {
+            const newComment = await Comment.create({
+                user_id: req.user.id,
+                post_id,
+                content
+            })
+            // console.log(newComment)
+            // console.log("newCommentID", newComment.id)   
+            if (!newComment) {
+                const error = new Error('Comment not created!');
+                error.status = 500;
+                throw error;
+            }
+            res.json({
+                data: "Comment created successfully",
+                newComment
+            })
+        } else {
             return res.status(403).json("Sorry, You are not eligible")
         }
     }
