@@ -16,6 +16,8 @@ router.get("/users/view-all-user", checkAuth, UsersController.users_viewAll)
 
 router.post("/users/follow", checkAuth, UsersController.users_follow)
 
+router.post("/users/unfollow", checkAuth, UsersController.users_unfollow)
+
 
 
 

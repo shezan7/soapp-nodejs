@@ -70,6 +70,11 @@ exports.update_post = async (req, res, next) => {
 
     try {
         const { id, content, picture } = req.body
+        if (id === undefined) {
+            return res.status(500).send({
+                message: "Problem found to update post"
+            })
+        }
 
         // console.log(userPosts.includes(req.body.id))   
         if (userPosts.includes(req.body.id)) {
@@ -117,6 +122,11 @@ exports.delete_post = async (req, res, next) => {
 
     try {
         const { id } = req.body
+        if (id === undefined) {
+            return res.status(500).send({
+                message: "Problem found to delete post"
+            })
+        }
 
         // console.log(userPosts.includes(req.body.id))   
         if (userPosts.includes(req.body.id)) {
@@ -126,7 +136,12 @@ exports.delete_post = async (req, res, next) => {
                 }
             })
             // console.log(newPost)
-            // console.log("newPostID", newPost.id)   
+            // console.log("newPostID", newPost.id)  
+            if (!newPost) {
+                const error = new Error('Delete Post not generated!');
+                error.status = 500;
+                throw error;
+            }
             res.json({
                 data: "Post deleted successfully",
                 newPost
@@ -199,22 +214,32 @@ exports.view_post = async (req, res, next) => {
     }
 }
 
-exports.create_like = async (req, res, next) => {
-    console.log("like_create", req.body);
-    // console.log("two", req.user);
-    // console.log("three", req.user.id);
-
-    // const user_id = req.user.id
-
+exports.post_like = async (req, res, next) => {
+    console.log("like", req.body)
     try {
         const { post_id } = req.body;
         if (post_id === undefined) {
             return res.status(500).send({
-                message: "Some problem found"
+                message: "Problem found to like this post"
             })
         }
 
-        if (req.user.id) {
+        // console.log("one", req.user.id);
+        const LikeList = [];
+        const findUserId = await Like.findAll({
+            where: {
+                user_id: req.user.id,
+            },
+            attributes: ["post_id"]
+        })
+        findUserId.map((val) => {
+            // console.log('Value', val.post_id);
+            LikeList.push(val.post_id)
+        })
+        console.log("list", LikeList)
+
+         console.log(LikeList.includes(post_id))
+        if (!(LikeList.includes(post_id))) {
             const newLike = await Like.create({
                 user_id: req.user.id,
                 post_id
@@ -231,7 +256,66 @@ exports.create_like = async (req, res, next) => {
                 newLike
             })
         } else {
-            return res.status(403).json("Sorry, You are not eligible")
+            res.json({
+                data: "You already like this post"
+            })
+        }
+    }
+
+    catch (err) {
+        console.log(err)
+        res.status(500).json({
+            error: err
+        })
+    }
+}
+
+exports.post_unlike = async (req, res, next) => {
+    console.log("unlike", req.body)
+    try {
+        const { id, post_id } = req.body;
+        if (id === undefined || post_id === undefined) {
+            return res.status(500).send({
+                message: "Problem found to unlike this post"
+            })
+        }
+
+        // console.log("one", req.user.id);
+        const LikeList = [];
+        const findUserId = await Like.findAll({
+            where: {
+                user_id: req.user.id,
+            },
+            attributes: ["post_id"]
+        })
+        findUserId.map((val) => {
+            // console.log('Value', val.post_id);
+            LikeList.push(val.post_id)
+        })
+        console.log("list", LikeList)
+
+         console.log(LikeList.includes(post_id))
+        if ((LikeList.includes(post_id))) {
+            const Unlilke = await Like.destroy({
+                where: {
+                    id
+                }
+            })
+            // console.log(Unlilke)
+            // console.log("UnlilkeID", Unlilke.id)   
+            if (!Unlilke) {
+                const error = new Error('Unlike not created!');
+                error.status = 500;
+                throw error;
+            }
+            res.json({
+                data: "Unlike created successfully",
+                Unlilke
+            })
+        } else {
+            res.json({
+                data: "You already unlike this post"
+            })
         }
     }
 
@@ -244,17 +328,13 @@ exports.create_like = async (req, res, next) => {
 }
 
 exports.create_comment = async (req, res, next) => {
-    console.log("comment_create", req.body);
-    // console.log("two", req.user);
-    // console.log("three", req.user.id);
-
-    // const user_id = req.user.id
-
+    console.log("comment_create", req.body)
+    // console.log("one", req.user.id)
     try {
         const { post_id, content } = req.body;
         if (post_id === undefined || content === undefined) {
             return res.status(500).send({
-                message: "Some problem found"
+                message: "Problem found to create comment"
             })
         }
 
@@ -306,6 +386,11 @@ exports.update_comment = async (req, res, next) => {
 
     try {
         const { id, content } = req.body
+        if (id === undefined || content === undefined) {
+            return res.status(500).send({
+                message: "Problem found to update comment"
+            })
+        }
 
         // console.log(userComments.includes(req.body.id))   
         if (userComments.includes(req.body.id)) {
@@ -353,6 +438,11 @@ exports.delete_comment = async (req, res, next) => {
 
     try {
         const { id } = req.body
+        if (id === undefined) {
+            return res.status(500).send({
+                message: "Problem found to delete comment"
+            })
+        }
 
         // console.log(userComments.includes(req.body.id))   
         if (userComments.includes(req.body.id)) {
@@ -362,7 +452,12 @@ exports.delete_comment = async (req, res, next) => {
                 }
             })
             // console.log(newComment)
-            // console.log("newCommentID", newComment.id)   
+            // console.log("newCommentID", newComment.id)          
+            if (!newComment) {
+                const error = new Error('Delete Comment not generated!');
+                error.status = 500;
+                throw error;
+            }
             res.json({
                 data: "Comment deleted successfully",
                 newComment

@@ -107,11 +107,14 @@ exports.users_login = async (req, res, next) => {
 exports.users_update = async (req, res, next) => {
     // console.log(req.body.id)
     // console.log(req.user.id)
-
     if (req.user.id === req.body.id) {
         try {
-            const { id, first_name, last_name, date_of_birth, gender, profile_picture } = req.body;
-
+            const { id, first_name, last_name, date_of_birth, gender, profile_picture } = req.body
+            if (id === undefined) {
+                return res.status(500).send({
+                    message: "Problem found to update user info"
+                })
+            }
             const user = await User.update({
                 first_name, last_name, date_of_birth, gender, profile_picture
             }, {
@@ -158,45 +161,109 @@ exports.users_viewAll = async (req, res, next) => {
 
 exports.users_follow = async (req, res, next) => {
     console.log("follow", req.body)
-
     try {
-        const { following_user } = req.body;
+        const { following_user } = req.body
         if (following_user === undefined) {
             return res.status(500).send({
-                message: "Found problem to follow"
+                message: "Found problem to follow this user"
             })
         }
 
-        // if ((UserFollowMapping[0].user_id.includes(req.user.id)) && (UserFollowMapping[0].follow_id.includes(following))) {
-        //     return res.status(403).json("You already follow this user")
-        // }
-        // else {
+        // console.log("one", req.user.id);
+        const FollowList = [];
+        const findUserId = await Follow.findAll({
+            where: {
+                user_id: req.user.id,
+            },
+            attributes: ["following_user"]
+        })
+        findUserId.map((val) => {
+            // console.log('Value', val.following_user);
+            FollowList.push(val.following_user)
+        })
+        console.log("list", FollowList)
 
-        // }
-
-        // console.log(req.user.id)
-        if (req.user.id) {
+        // console.log(FollowList.includes(following_user))
+        if (FollowList.includes(following_user)) {
+            res.json({
+                data: "You already follow this user"
+            })           
+        } else {
             const newFollow = await Follow.create({
                 user_id: req.user.id,
                 following_user
             })
             // console.log(newFollow)
             // console.log("newFollowID", newFollow.id)
-    
+
             if (!newFollow) {
                 const error = new Error('Follow not generated!');
                 error.status = 500;
                 throw error;
             }
-    
+
             res.json({
                 data: "New Follow generated successfully",
                 newFollow
             })
         }
-        else {
-            return res.status(403).json("Sorry, You are not eligible")
-        } 
+    }
+
+    catch (err) {
+        console.log(err)
+        res.status(500).json({
+            error: err
+        })
+    }
+}
+
+exports.users_unfollow = async (req, res, next) => {
+    console.log("unfollow", req.body)
+    try {
+        const { id, following_user } = req.body
+        if (id === undefined || following_user === undefined) {
+            return res.status(500).send({
+                message: "Problem found to unfollow this user"
+            })
+        }
+
+        // console.log("one", req.user.id);
+        const FollowList = [];
+        const findUserId = await Follow.findAll({
+            where: {
+                user_id: req.user.id,
+            },
+            attributes: ["following_user"]
+        })
+        findUserId.map((val) => {
+            // console.log('Value', val.following_user);
+            FollowList.push(val.following_user)
+        })
+        console.log("list", FollowList)
+
+        // console.log(FollowList.includes(following_user))
+        if (FollowList.includes(following_user)) {
+            const unfollow = await Follow.destroy({
+                where: {
+                    id
+                }
+            })
+            // console.log(unfollow)
+            // console.log("unfollowID", unfollow.id)   
+            if (!unfollow) {
+                const error = new Error('Unfollow not generated!');
+                error.status = 500;
+                throw error;
+            }
+            res.json({
+                data: "New Unfollow generated successfully",
+                unfollow
+            })
+        } else {
+            res.json({
+                data: "You already unfollow this user"
+            })
+        }
     }
 
     catch (err) {
