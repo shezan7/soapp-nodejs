@@ -53,16 +53,26 @@ exports.create_post = async (req, res, next) => {
 }
 
 exports.update_post = async (req, res, next) => {
-    console.log("post_update", req.body);
-    // console.log("two", req.user);
-    // console.log("three", req.user.id);
-
-    // const user_id = req.user.id
+    console.log("post_update", req.body)
+    // console.log("one", req.user.id);
+    const userPosts = [];
+    const findUserId = await Post.findAll({
+        where: {
+            user_id: req.user.id,
+        },
+        attributes: ["id"]
+    })
+    findUserId.map((val) => {
+        // console.log('Value', val.id);
+        userPosts.push(val.id)
+    })
+    console.log("list", userPosts)
 
     try {
-        const { id, content, picture } = req.body;
-        
-        if (req.user.id) {
+        const { id, content, picture } = req.body
+
+        // console.log(userPosts.includes(req.body.id))   
+        if (userPosts.includes(req.body.id)) {
             const newPost = await Post.update({
                 content, picture
             }, {
@@ -74,6 +84,51 @@ exports.update_post = async (req, res, next) => {
             // console.log("newPostID", newPost.id)   
             res.json({
                 data: "Post updated successfully",
+                newPost
+            })
+        } else {
+            return res.status(403).json("Sorry, You are not eligible")
+        }
+    }
+
+    catch (err) {
+        console.log(err)
+        res.status(500).json({
+            error: err
+        })
+    }
+}
+
+exports.delete_post = async (req, res, next) => {
+    console.log("post_delete", req.body)
+    // console.log("one", req.user.id);
+    const userPosts = [];
+    const findUserId = await Post.findAll({
+        where: {
+            user_id: req.user.id,
+        },
+        attributes: ["id"]
+    })
+    findUserId.map((val) => {
+        // console.log('Value', val.id);
+        userPosts.push(val.id)
+    })
+    console.log("list", userPosts)
+
+    try {
+        const { id } = req.body
+
+        // console.log(userPosts.includes(req.body.id))   
+        if (userPosts.includes(req.body.id)) {
+            const newPost = await Post.destroy({
+                where: {
+                    id
+                }
+            })
+            // console.log(newPost)
+            // console.log("newPostID", newPost.id)   
+            res.json({
+                data: "Post deleted successfully",
                 newPost
             })
         } else {
@@ -125,12 +180,12 @@ exports.view_post = async (req, res, next) => {
             if (post.length === 0) {
                 return res.status(403).json("Post is not found!")
             }
-            
+
             res.json({
                 data: "Post found successfully",
                 post
             })
-        } 
+        }
         else {
             return res.status(403).json("Sorry, You are not eligible")
         }
@@ -235,15 +290,25 @@ exports.create_comment = async (req, res, next) => {
 
 exports.update_comment = async (req, res, next) => {
     console.log("comment_update", req.body);
-    // console.log("two", req.user);
-    // console.log("three", req.user.id);
-
-    // const user_id = req.user.id
+    // console.log("one", req.user.id);
+    const userComments = [];
+    const findUserId = await Comment.findAll({
+        where: {
+            user_id: req.user.id,
+        },
+        attributes: ["id"]
+    })
+    findUserId.map((val) => {
+        // console.log('Value', val.id);
+        userComments.push(val.id)
+    })
+    console.log("list", userComments)
 
     try {
-        const { id, content } = req.body;
+        const { id, content } = req.body
 
-        if (req.user.id) {
+        // console.log(userComments.includes(req.body.id))   
+        if (userComments.includes(req.body.id)) {
             const newComment = await Comment.update({
                 content
             }, {
@@ -255,6 +320,51 @@ exports.update_comment = async (req, res, next) => {
             // console.log("newCommentID", newComment.id)   
             res.json({
                 data: "Comment updated successfully",
+                newComment
+            })
+        } else {
+            return res.status(403).json("Sorry, You are not eligible")
+        }
+    }
+
+    catch (err) {
+        console.log(err)
+        res.status(500).json({
+            error: err
+        })
+    }
+}
+
+exports.delete_comment = async (req, res, next) => {
+    console.log("comment_delete", req.body);
+    // console.log("one", req.user.id);
+    const userComments = [];
+    const findUserId = await Comment.findAll({
+        where: {
+            user_id: req.user.id,
+        },
+        attributes: ["id"]
+    })
+    findUserId.map((val) => {
+        // console.log('Value', val.id);
+        userComments.push(val.id)
+    })
+    console.log("list", userComments)
+
+    try {
+        const { id } = req.body
+
+        // console.log(userComments.includes(req.body.id))   
+        if (userComments.includes(req.body.id)) {
+            const newComment = await Comment.destroy({
+                where: {
+                    id
+                }
+            })
+            // console.log(newComment)
+            // console.log("newCommentID", newComment.id)   
+            res.json({
+                data: "Comment deleted successfully",
                 newComment
             })
         } else {
