@@ -9,15 +9,15 @@ const { Op } = require("sequelize")
 
 
 exports.users_signup = async (req, res, next) => {
-    console.log("users_register", req.body);
-    const { email, password, first_name, last_name, date_of_birth, gender, profile_picture } = req.body;
+    console.log("users_register", req.body)
+    const { email, password, first_name, last_name, date_of_birth, gender, profile_picture } = req.body
     if (email === undefined || password === undefined || first_name === undefined || last_name === undefined || date_of_birth === undefined || gender === undefined) {
         return res.status(500).send({
             message: "Something went wrong!"
         })
     }
-    const salt = await bcrypt.genSalt(10);
-    hashPassword = await bcrypt.hash(password, salt);
+    const salt = await bcrypt.genSalt(10)
+    hashPassword = await bcrypt.hash(password, salt)
     try {
         const newUser = await User.create({
             email: email,
@@ -31,7 +31,7 @@ exports.users_signup = async (req, res, next) => {
         // console.log("new", newUser)
 
         if (!newUser) {
-            const error = new Error('User not created!');
+            const error = new Error('User not created!')
             error.status = 500;
             throw error;
         }
@@ -52,14 +52,14 @@ exports.users_signup = async (req, res, next) => {
 
 exports.users_login = async (req, res, next) => {
 
-    console.log("users_login", req.body);
+    console.log("users_login", req.body)
 
-    const { email, password } = req.body;
+    const { email, password } = req.body
 
     if (email === undefined || password === undefined) {
         return res.status(500).send({
             message: "Something went wrong!!!"
-        });
+        })
     }
 
     try {
@@ -93,7 +93,7 @@ exports.users_login = async (req, res, next) => {
         else {
             return res.status(401).send({
                 message: "Email or Password is incorrect!"
-            });
+            })
         }
     }
     catch (err) {
@@ -104,8 +104,71 @@ exports.users_login = async (req, res, next) => {
     }
 }
 
-exports.forget_password = async (req, res, next) => {
+exports.reset_password = async (req, res, next) => {
+    console.log("reset_password", req.body)
 
+    const { id, email, password, new_password, confirm_new_password } = req.body
+
+    if (email === undefined || password === undefined) {
+        return res.status(500).send({
+            message: "Something went wrong!!!"
+        })
+    }
+
+    try {
+        const user = await User.findOne({
+            where: {
+                email
+            }
+        })
+        if (!user) {
+            return res.status(401).send({
+                message: "Email or Password is incorrect!"
+            })
+        }
+        const validPassword = await bcrypt.compare(password, user.password)
+        if (validPassword) {
+            if (new_password === confirm_new_password) {
+                const salt = await bcrypt.genSalt(10)
+                hashPassword = await bcrypt.hash(new_password, salt)
+                const resetPassword = await User.update({
+                    password: hashPassword
+                }, {
+                    where: {
+                        id
+                    }
+                })
+                const jwtToken = jwt.sign({
+                    id: user.id
+                }, process.env.JWT_KEY,
+                    {
+                        expiresIn: "8h"
+                    })
+
+                res.status(200).json({
+                    data: "Password reset successfull",
+                    token: jwtToken,
+                    userId: user.id
+                })
+                console.log(user.id)
+            } else {
+                return res.status(401).send({
+                    message: "Password doesn't match"
+                })
+            }
+        }
+        else {
+            return res.status(401).send({
+                message: "Email or Password is incorrect!"
+            })
+        }
+    }
+    catch (err) {
+        console.log(err)
+        res.status(500).json({
+            error: err
+        })
+    }
 }
 
 exports.users_update = async (req, res, next) => {

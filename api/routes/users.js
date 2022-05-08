@@ -10,7 +10,7 @@ router.post("/users/register", UsersController.users_signup)
 
 router.post("/users/login", UsersController.users_login)
 
-router.post("/users/reset password", UsersController.forget_password)
+router.post("/users/reset-password", UsersController.reset_password)
 
 router.patch("/users/update-info", checkAuth, UsersController.users_update)
 
