@@ -126,6 +126,7 @@ exports.reset_password = async (req, res, next) => {
                 message: "Email or Password is incorrect!"
             })
         }
+
         const validPassword = await bcrypt.compare(password, user.password)
         if (validPassword) {
             if (new_password === confirm_new_password) {
