@@ -171,6 +171,72 @@ exports.reset_password = async (req, res, next) => {
     }
 }
 
+exports.forget_password = async (req, res, next) => {
+    console.log("forget_password", req.body)
+
+    const { email, new_password, confirm_new_password } = req.body
+
+    if (email === undefined) {
+        return res.status(500).send({
+            message: "Something went wrong!!!"
+        })
+    }
+
+    try {
+        const user = await User.findOne({
+            where: {
+                email
+            }
+        })
+        if (!user) {
+            return res.status(401).send({
+                message: "User does not exist"
+            })
+        }
+        else {
+            //send otp to email address
+            /*
+            
+            */
+
+            if (new_password === confirm_new_password) {
+                const salt = await bcrypt.genSalt(10)
+                hashPassword = await bcrypt.hash(new_password, salt)
+                const currentPassword = await User.update({
+                    password: hashPassword
+                }, {
+                    where: {
+                        id
+                    }
+                })
+                const jwtToken = jwt.sign({
+                    id: user.id
+                }, process.env.JWT_KEY,
+                    {
+                        expiresIn: "8h"
+                    })
+
+                res.status(200).json({
+                    data: "Password recover successfull",
+                    token: jwtToken,
+                    userId: user.id
+                })
+                console.log(user.id)
+            } else {
+                return res.status(401).send({
+                    message: "Password doesn't match"
+                })
+            }
+        }
+    }
+    catch (err) {
+        console.log(err)
+        res.status(500).json({
+            error: err
+        })
+    }
+}
+
 exports.users_update = async (req, res, next) => {
     // console.log(req.body.id)
     // console.log(req.user.id)
