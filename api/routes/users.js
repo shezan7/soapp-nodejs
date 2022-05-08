@@ -10,6 +10,8 @@ router.post("/users/register", UsersController.users_signup)
 
 router.post("/users/login", UsersController.users_login)
 
+router.post("/users/reset password", UsersController.forget_password)
+
 router.patch("/users/update-info", checkAuth, UsersController.users_update)
 
 router.get("/users/view-all-user", checkAuth, UsersController.users_viewAll)

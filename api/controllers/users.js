@@ -104,6 +104,10 @@ exports.users_login = async (req, res, next) => {
     }
 }
 
+exports.forget_password = async (req, res, next) => {
+
+}
+
 exports.users_update = async (req, res, next) => {
     // console.log(req.body.id)
     // console.log(req.user.id)
@@ -187,7 +191,7 @@ exports.users_follow = async (req, res, next) => {
         if (FollowList.includes(following_user)) {
             res.json({
                 data: "You already follow this user"
-            })           
+            })
         } else {
             const newFollow = await Follow.create({
                 user_id: req.user.id,
