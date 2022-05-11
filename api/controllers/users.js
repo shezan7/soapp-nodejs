@@ -216,7 +216,7 @@ exports.forgot_password = async (req, res, next) => {
                     pass: "shezan.v2@123"
                 }
             })
-            const link = `http://localhost:3000/reset-password`
+            const link = `https://soapp-nodejs.herokuapp.com/users/reset-password`
             let mailOptions = {
                 from: 'v2.shezan@gmail.com',
                 to: email,
