@@ -1,10 +1,15 @@
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 
+const { Op } = require("sequelize")
+
 const User = require('../sequelize-models/User')
 const Follow = require('../sequelize-models/Follow')
+const PasswordReset = require('../sequelize-models/ResetPassword')
 
-const { Op } = require("sequelize")
+const nodeMailer = require('nodemailer')
+
+
 
 
 
@@ -104,8 +109,8 @@ exports.users_login = async (req, res, next) => {
     }
 }
 
-exports.reset_password = async (req, res, next) => {
-    console.log("reset_password", req.body)
+exports.change_password = async (req, res, next) => {
+    console.log("change_password", req.body)
 
     const { id, email, password, new_password, confirm_new_password } = req.body
 
@@ -131,7 +136,7 @@ exports.reset_password = async (req, res, next) => {
             if (new_password === confirm_new_password) {
                 const salt = await bcrypt.genSalt(10)
                 hashPassword = await bcrypt.hash(new_password, salt)
-                const resetPassword = await User.update({
+                const changePassword = await User.update({
                     password: hashPassword
                 }, {
                     where: {
@@ -171,10 +176,10 @@ exports.reset_password = async (req, res, next) => {
     }
 }
 
-exports.forget_password = async (req, res, next) => {
-    console.log("forget_password", req.body)
+exports.forgot_password = async (req, res, next) => {
+    console.log("forgot_password", req.body)
 
-    const { email, new_password, confirm_new_password } = req.body
+    const { email } = req.body
 
     if (email === undefined) {
         return res.status(500).send({
@@ -194,40 +199,101 @@ exports.forget_password = async (req, res, next) => {
             })
         }
         else {
-            //send otp to email address
-            /*
-            
-            */
+            const code = Math.random().toString(20).substring(2, 12)
+            const passwordReset = await PasswordReset.create({
+                email,
+                code
+            })
+            if (!passwordReset) {
+                return res.status(401).send({
+                    message: "Password reset not created"
+                })
+            }
+            const transporter = nodeMailer.createTransport({
+                service: "gmail",
+                auth: {
+                    user: "v2.shezan@gmail.com",
+                    pass: "shezan.v2@123"
+                }
+            })
+            const link = `http://localhost:3000/reset-password`
+            let mailOptions = {
+                from: 'v2.shezan@gmail.com',
+                to: email,
+                subject: 'Reset your password',
+                html: `<body> Click <a href="${link}"> here </a> to reset your password! This is your password recovery code <h3> ${code} </h3> </body>`
+            }
+            transporter.sendMail(mailOptions, (err, data) => {
+                if (err) {
+                    return res.status(401).send({
+                        message: "Link not sent"
+                    })
+                }
+                else {
+                    res.status(200).json({
+                        message: "Check your email to reset your password"
+                    })
+                }
+            })
+        }
+    }
+    catch (err) {
+        console.log(err)
+        res.status(500).json({
+            error: err
+        })
+    }
+}
 
+exports.reset_password = async (req, res, next) => {
+    const { email, code, new_password, confirm_new_password } = req.body
+
+    try {
+        const user = await User.findOne({
+            where: {
+                email
+            }
+        })
+        if (!user) {
+            return res.status(401).send({
+                message: "User does not exist"
+            })
+        }
+        const passResetCode = await PasswordReset.findOne({
+            where: {
+                code
+            }
+        })
+        if (!passResetCode) {
+            return res.status(401).send({
+                message: "Code not found!"
+            })
+        }
+        else {
             if (new_password === confirm_new_password) {
                 const salt = await bcrypt.genSalt(10)
                 hashPassword = await bcrypt.hash(new_password, salt)
-                const currentPassword = await User.update({
+                const updatedPassword = await User.update({
                     password: hashPassword
                 }, {
                     where: {
-                        id
+                        email
                     }
                 })
-                const jwtToken = jwt.sign({
-                    id: user.id
-                }, process.env.JWT_KEY,
-                    {
-                        expiresIn: "8h"
-                    })
-
                 res.status(200).json({
-                    data: "Password recover successfull",
-                    token: jwtToken,
-                    userId: user.id
+                    message: "Password recover successfull"
                 })
-                console.log(user.id)
             } else {
                 return res.status(401).send({
                     message: "Password doesn't match"
                 })
             }
         }
+        await PasswordReset.destroy({
+            where: {
+                email
+            }
+        })
     }
     catch (err) {
         console.log(err)
