@@ -238,7 +238,7 @@ exports.post_like = async (req, res, next) => {
         })
         console.log("list", LikeList)
 
-         console.log(LikeList.includes(post_id))
+        console.log(LikeList.includes(post_id))
         if (!(LikeList.includes(post_id))) {
             const newLike = await Like.create({
                 user_id: req.user.id,
@@ -294,7 +294,7 @@ exports.post_unlike = async (req, res, next) => {
         })
         console.log("list", LikeList)
 
-         console.log(LikeList.includes(post_id))
+        console.log(LikeList.includes(post_id))
         if ((LikeList.includes(post_id))) {
             const Unlilke = await Like.destroy({
                 where: {
@@ -436,6 +436,29 @@ exports.delete_comment = async (req, res, next) => {
     })
     console.log("list", userComments)
 
+    const postOwner = await db.query(
+        `SELECT
+            c.id,
+            c.user_id,
+            c.post_id,
+            p.user_id as post_owner_user_id
+            FROM
+                soapp.posts p,
+                soapp.comments c
+                WHERE
+                    p.id = c.post_id
+                    AND p.user_id = ${req.user.id};`
+        , {
+            type: QueryTypes.SELECT
+        })
+    console.log(postOwner)
+
+    const postOwnerCommentList = []
+    postOwner.map((val) => {
+        postOwnerCommentList.push(val.id)
+    })
+    console.log(postOwnerCommentList)
+
     try {
         const { id } = req.body
         if (id === undefined) {
@@ -444,15 +467,15 @@ exports.delete_comment = async (req, res, next) => {
             })
         }
 
-        // console.log(userComments.includes(req.body.id))   
-        if (userComments.includes(req.body.id)) {
+        // console.log(userComments.includes(req.body.id))
+        // console.log(postOwnerCommentList.includes(req.body.id))
+        if ((userComments.includes(req.body.id)) || (postOwnerCommentList.includes(req.body.id))) {
             const newComment = await Comment.destroy({
                 where: {
                     id
                 }
             })
-            // console.log(newComment)
-            // console.log("newCommentID", newComment.id)          
+            console.log(newComment)
             if (!newComment) {
                 const error = new Error('Delete Comment not generated!');
                 error.status = 500;
