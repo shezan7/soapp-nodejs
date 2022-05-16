@@ -159,8 +159,10 @@ exports.delete_post = async (req, res, next) => {
 }
 
 exports.view_post = async (req, res, next) => {
-    console.log("two", req.user)
-    // console.log("three", req.user.id)
+    // console.log("two", req.user);
+    // console.log("three", req.user.id);
+
+    // const user_id = req.user.id
 
     try {
         if (req.user.id) {
@@ -169,11 +171,15 @@ exports.view_post = async (req, res, next) => {
                     p.id,
                     p.content,
                     p.picture,
-                    p.tag_id
+                    p.tag_id,
+                    u.first_name,
+                    u.last_name
                 FROM
-                    soapp.posts p
+                    soapp.posts p,
+                    soapp.users u
                 WHERE
-                    (p.user_id = ${req.user.id}
+                    u.id = p.user_id
+                    AND (p.user_id = ${req.user.id}
                         OR p.user_id IN (SELECT 
                                             f.following_user 
                                         FROM 
@@ -202,9 +208,7 @@ exports.view_post = async (req, res, next) => {
 
             res.json({
                 data: "Post found successfully",
-                post,
-                first_name: req.user.fName,
-                last_name: req.user.lName
+                post
             })
         }
         else {
