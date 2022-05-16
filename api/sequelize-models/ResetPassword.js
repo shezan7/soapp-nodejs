@@ -10,7 +10,7 @@ const resetPassword = sequelize.define('reset_password', {
         unique: true,
         allowNull: false
     },
-    code: {
+    token: {
         type: STRING,
         unique: true,
         allowNull: false

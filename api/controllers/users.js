@@ -199,10 +199,10 @@ exports.forgot_password = async (req, res, next) => {
             })
         }
         else {
-            const code = Math.random().toString(20).substring(2, 12)
+            const token = Math.random().toString(20).substring(2, 12)
             const passwordReset = await PasswordReset.create({
                 email,
-                code
+                token
             })
             if (!passwordReset) {
                 return res.status(401).send({
@@ -216,12 +216,12 @@ exports.forgot_password = async (req, res, next) => {
                     pass: "shezan.v2@123"
                 }
             })
-            const link = `https://soapp-nodejs.herokuapp.com/users/reset-password`
+            const link = `https://soapp-nodejs.herokuapp.com/users/reset-password/${token}/${email}`
             let mailOptions = {
                 from: 'v2.shezan@gmail.com',
                 to: email,
                 subject: 'Reset your password',
-                html: `<body> Click <a href="${link}"> here </a> to reset your password! This is your password recovery code <h3> ${code} </h3> </body>`
+                html: `<body> Click <a href="${link}"> here </a> to reset your password! </body>`
             }
             transporter.sendMail(mailOptions, (err, data) => {
                 if (err) {
@@ -246,7 +246,8 @@ exports.forgot_password = async (req, res, next) => {
 }
 
 exports.reset_password = async (req, res, next) => {
-    const { email, code, new_password, confirm_new_password } = req.body
+    const { new_password, confirm_new_password } = req.body
+    const { token, email } = req.params
 
     try {
         const user = await User.findOne({
@@ -259,14 +260,14 @@ exports.reset_password = async (req, res, next) => {
                 message: "User does not exist"
             })
         }
-        const passResetCode = await PasswordReset.findOne({
+        const passResetToken = await PasswordReset.findOne({
             where: {
-                code
+                token
             }
         })
-        if (!passResetCode) {
+        if (!passResetToken) {
             return res.status(401).send({
-                message: "Code not found!"
+                message: "Token not found!"
             })
         }
         else {
