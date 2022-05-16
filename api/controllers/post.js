@@ -36,9 +36,7 @@ exports.create_post = async (req, res, next) => {
             }
             res.json({
                 data: "New Post created successfully",
-                newPost,
-                first_name: req.user.fName,
-                last_name: req.user.lName
+                newPost
             })
         } else {
             return res.status(403).json("Sorry, You are not eligible")
@@ -161,10 +159,8 @@ exports.delete_post = async (req, res, next) => {
 }
 
 exports.view_post = async (req, res, next) => {
-    // console.log("two", req.user);
-    // console.log("three", req.user.id);
-
-    // const user_id = req.user.id
+    console.log("two", req.user)
+    // console.log("three", req.user.id)
 
     try {
         if (req.user.id) {
@@ -206,7 +202,9 @@ exports.view_post = async (req, res, next) => {
 
             res.json({
                 data: "Post found successfully",
-                post
+                post,
+                first_name: req.user.fName,
+                last_name: req.user.lName
             })
         }
         else {
