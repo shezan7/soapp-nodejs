@@ -82,7 +82,9 @@ exports.users_login = async (req, res, next) => {
         const validPassword = await bcrypt.compare(password, user.password)
         if (validPassword) {
             const jwtToken = jwt.sign({
-                id: user.id
+                id: user.id,
+                fName: user.first_name,
+                lName: user.last_name
             }, process.env.JWT_KEY,
                 {
                     expiresIn: "8h"

@@ -9,13 +9,11 @@ const Comment = require('../sequelize-models/Comment')
 
 exports.create_post = async (req, res, next) => {
     console.log("post_create", req.body);
-    // console.log("two", req.user);
-    // console.log("three", req.user.id);
-
-    // const user_id = req.user.id
+    // console.log("two", req.user)
+    // console.log("three", req.user.id)
 
     try {
-        const { content, picture } = req.body;
+        const { content, picture } = req.body
         if (content === undefined) {
             return res.status(500).send({
                 message: "Your content has some problem!"
@@ -28,6 +26,7 @@ exports.create_post = async (req, res, next) => {
                 picture,
                 user_id: req.user.id
             })
+
             // console.log(newPost)
             // console.log("newPostID", newPost.id)   
             if (!newPost) {
@@ -37,7 +36,9 @@ exports.create_post = async (req, res, next) => {
             }
             res.json({
                 data: "New Post created successfully",
-                newPost
+                newPost,
+                first_name: req.user.fName,
+                last_name: req.user.lName
             })
         } else {
             return res.status(403).json("Sorry, You are not eligible")
