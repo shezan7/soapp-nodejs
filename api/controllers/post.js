@@ -171,13 +171,20 @@ exports.view_post = async (req, res, next) => {
                 `SELECT
                     p.id,
                     p.content,
-                    p.picture
+                    p.picture,
+                    p.tag_id
                 FROM
                     soapp.posts p
                 WHERE
                     (p.user_id = ${req.user.id}
                         OR p.user_id IN (SELECT 
                                             f.following_user 
+                                        FROM 
+                                            soapp.follows f 
+                                        WHERE 
+                                            f.user_id = ${req.user.id})
+                        OR p.tag_id IN (SELECT 
+                                        ARRAY_AGG (f.following_user) 
                                         FROM 
                                             soapp.follows f 
                                         WHERE 
