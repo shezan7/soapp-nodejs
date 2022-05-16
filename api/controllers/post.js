@@ -283,8 +283,8 @@ exports.post_like = async (req, res, next) => {
 exports.post_unlike = async (req, res, next) => {
     console.log("unlike", req.body)
     try {
-        const { id, post_id } = req.body;
-        if (id === undefined || post_id === undefined) {
+        const { post_id } = req.body;
+        if (post_id === undefined) {
             return res.status(500).send({
                 message: "Problem found to unlike this post"
             })
@@ -308,7 +308,7 @@ exports.post_unlike = async (req, res, next) => {
         if ((LikeList.includes(post_id))) {
             const Unlilke = await Like.destroy({
                 where: {
-                    id
+                    post_id
                 }
             })
             // console.log(Unlilke)

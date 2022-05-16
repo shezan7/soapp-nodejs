@@ -419,8 +419,8 @@ exports.users_follow = async (req, res, next) => {
 exports.users_unfollow = async (req, res, next) => {
     console.log("unfollow", req.body)
     try {
-        const { id, following_user } = req.body
-        if (id === undefined || following_user === undefined) {
+        const { following_user } = req.body
+        if (following_user === undefined) {
             return res.status(500).send({
                 message: "Problem found to unfollow this user"
             })
@@ -444,7 +444,7 @@ exports.users_unfollow = async (req, res, next) => {
         if (FollowList.includes(following_user)) {
             const unfollow = await Follow.destroy({
                 where: {
-                    id
+                    following_user
                 }
             })
             // console.log(unfollow)
