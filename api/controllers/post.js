@@ -13,18 +13,20 @@ exports.create_post = async (req, res, next) => {
     // console.log("three", req.user.id)
 
     try {
-        const { content, picture } = req.body
+        const { content, picture, tag_id } = req.body
         if (content === undefined) {
             return res.status(500).send({
                 message: "Your content has some problem!"
             })
         }
 
+        console.log(tag_id)
         if (req.user.id) {
             const newPost = await Post.create({
                 content,
                 picture,
-                user_id: req.user.id
+                user_id: req.user.id,
+                tag_id
             })
 
             // console.log(newPost)

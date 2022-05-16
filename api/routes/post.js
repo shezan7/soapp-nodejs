@@ -1,13 +1,15 @@
 const express = require("express");
 const router = express.Router();
 const checkAuth = require('../middleware/check-auth')
+const multer = require('multer')
+const upload = multer({ dest: 'uploads/' })
 
 const PostController = require('../controllers/post')
 
 
 router.use(checkAuth);
 
-router.post("/post/create-post", PostController.create_post)
+router.post("/post/create-post", upload.single('image'), PostController.create_post)
 
 router.patch("/post/update-post", PostController.update_post)
 

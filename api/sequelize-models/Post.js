@@ -16,6 +16,9 @@ const post = sequelize.define('post', {
     picture: {
         type: STRING,
         allowNull: true
+    },
+    tag_id: {
+        type: [INTEGER]
     }
 }, {
     schema: "soapp",
