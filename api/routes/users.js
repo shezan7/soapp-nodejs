@@ -18,7 +18,9 @@ router.post("/users/reset-password", UsersController.reset_password)
 
 router.patch("/users/update-info", checkAuth, UsersController.users_update)
 
-router.get("/users/view-all-user", checkAuth, UsersController.users_viewAll)
+router.get("/users/view-all-user", checkAuth, UsersController.view_userlist)
+
+router.get("/users/view-following-user", checkAuth, UsersController.view_following_users)
 
 router.post("/users/follow", checkAuth, UsersController.users_follow)
 

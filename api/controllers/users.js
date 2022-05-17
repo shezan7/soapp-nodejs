@@ -1,7 +1,8 @@
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 
-const { Op } = require("sequelize")
+const db = require('../config/db')
+const { QueryTypes } = require('sequelize')
 
 const User = require('../sequelize-models/User')
 const Follow = require('../sequelize-models/Follow')
@@ -334,21 +335,89 @@ exports.users_update = async (req, res, next) => {
     }
 }
 
-exports.users_viewAll = async (req, res, next) => {
+exports.view_userlist = async (req, res, next) => {
     // console.log(req.user.id)
     try {
-        const userAll = await User.findAll({
-            attributes: ['id', 'first_name', 'last_name', 'date_of_birth', 'gender', 'profile_picture'],
-            where: {
-                id: {
-                    [Op.ne]: req.user.id
-                }
-            }
-        })
+        const user = await db.query(
+            `SELECT
+                u.id,
+                u.first_name,
+                u.last_name,
+                u.gender,
+                u.profile_picture
+            FROM
+                soapp.users u
+            WHERE
+                u.id NOT IN (SELECT
+                    f.following_user 
+                    FROM 
+                        soapp.follows f 
+                        WHERE 
+                            f.user_id = ${req.user.id}
+                            OR u.id = ${req.user.id});`
+            , {
+                type: QueryTypes.SELECT
+            })
+
+        // console.log(post.length)
+        if (!user) {
+            const error = new Error('Problem found to view users');
+            error.status = 500;
+            throw error;
+        }
+        if (user.length === 0) {
+            return res.status(403).json("users not found!")
+        }
 
         res.json({
             data: "All users find successfully",
-            userAll
+            user
+        })
+    }
+    catch (err) {
+        console.log(err)
+        res.status(500).json({
+            error: err
+        })
+    }
+}
+
+exports.view_following_users = async (req, res, next) => {
+    // console.log(req.user.id)
+    try {
+        const user = await db.query(
+            `SELECT
+                u.id,
+                u.first_name,
+                u.last_name,
+                u.gender,
+                u.profile_picture
+            FROM
+                soapp.users u
+            WHERE
+                u.id IN (SELECT
+                    f.following_user 
+                    FROM 
+                        soapp.follows f 
+                        WHERE 
+                            f.user_id = ${req.user.id});`
+            , {
+                type: QueryTypes.SELECT
+            })
+
+        // console.log(post.length)
+        if (!user) {
+            const error = new Error('Problem found to view following users');
+            error.status = 500;
+            throw error;
+        }
+        if (user.length === 0) {
+            return res.status(403).json("Following users not found!")
+        }
+
+        res.json({
+            data: "Following users find successfully",
+            user
         })
     }
     catch (err) {
