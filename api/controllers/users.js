@@ -110,73 +110,6 @@ exports.users_login = async (req, res, next) => {
     }
 }
 
-exports.change_password = async (req, res, next) => {
-    console.log("change_password", req.body)
-
-    const { id, email, password, new_password, confirm_new_password } = req.body
-
-    if (email === undefined || password === undefined) {
-        return res.status(500).send({
-            message: "Something went wrong!!!"
-        })
-    }
-
-    try {
-        const user = await User.findOne({
-            where: {
-                email
-            }
-        })
-        if (!user) {
-            return res.status(401).send({
-                message: "Email or Password is incorrect!"
-            })
-        }
-        const validPassword = await bcrypt.compare(password, user.password)
-        if (validPassword) {
-            if (new_password === confirm_new_password) {
-                const salt = await bcrypt.genSalt(10)
-                hashPassword = await bcrypt.hash(new_password, salt)
-                const changePassword = await User.update({
-                    password: hashPassword
-                }, {
-                    where: {
-                        id
-                    }
-                })
-                const jwtToken = jwt.sign({
-                    id: user.id
-                }, process.env.JWT_KEY,
-                    {
-                        expiresIn: "8h"
-                    })
-
-                res.status(200).json({
-                    data: "Password reset successfull",
-                    token: jwtToken,
-                    userId: user.id
-                })
-                console.log(user.id)
-            } else {
-                return res.status(401).send({
-                    message: "Password doesn't match"
-                })
-            }
-        }
-        else {
-            return res.status(401).send({
-                message: "Email or Password is incorrect!"
-            })
-        }
-    }
-    catch (err) {
-        console.log(err)
-        res.status(500).json({
-            error: err
-        })
-    }
-}
-
 exports.forgot_password = async (req, res, next) => {
     console.log("forgot_password", req.body)
 
@@ -296,6 +229,108 @@ exports.reset_password = async (req, res, next) => {
                 email
             }
         })
+    }
+    catch (err) {
+        console.log(err)
+        res.status(500).json({
+            error: err
+        })
+    }
+}
+
+exports.view_profile = async (req, res, next) => {
+    try {
+        if (req.user.id) {
+            const user = await db.query(
+                `SELECT
+                    *
+                FROM
+                    soapp.users u
+                WHERE
+                    u.id = ${req.user.id};`
+                , {
+                    type: QueryTypes.SELECT
+                })
+            if (!user) {
+                const error = new Error('Problem found to view profile');
+                error.status = 500;
+                throw error;
+            }
+            res.json({
+                data: "Profile information find successfully",
+                user
+            })
+        }
+        else {
+            return res.status(403).json("Sorry, You are not eligible")
+        }
+    }
+    catch (err) {
+        console.log(err)
+        res.status(500).json({
+            error: err
+        })
+    }
+}
+
+exports.change_password = async (req, res, next) => {
+    console.log("change_password", req.body)
+
+    const { id, email, password, new_password, confirm_new_password } = req.body
+
+    if (email === undefined || password === undefined) {
+        return res.status(500).send({
+            message: "Something went wrong!!!"
+        })
+    }
+
+    try {
+        const user = await User.findOne({
+            where: {
+                email
+            }
+        })
+        if (!user) {
+            return res.status(401).send({
+                message: "Email or Password is incorrect!"
+            })
+        }
+        const validPassword = await bcrypt.compare(password, user.password)
+        if (validPassword) {
+            if (new_password === confirm_new_password) {
+                const salt = await bcrypt.genSalt(10)
+                hashPassword = await bcrypt.hash(new_password, salt)
+                const changePassword = await User.update({
+                    password: hashPassword
+                }, {
+                    where: {
+                        id
+                    }
+                })
+                const jwtToken = jwt.sign({
+                    id: user.id
+                }, process.env.JWT_KEY,
+                    {
+                        expiresIn: "8h"
+                    })
+
+                res.status(200).json({
+                    data: "Password reset successfull",
+                    token: jwtToken,
+                    userId: user.id
+                })
+                console.log(user.id)
+            } else {
+                return res.status(401).send({
+                    message: "Password doesn't match"
+                })
+            }
+        }
+        else {
+            return res.status(401).send({
+                message: "Email or Password is incorrect!"
+            })
+        }
     }
     catch (err) {
         console.log(err)
