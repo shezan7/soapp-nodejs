@@ -11,7 +11,7 @@ exports.create_post = async (req, res, next) => {
     console.log("post_create", req.body);
     // console.log("two", req.user)
     // console.log("three", req.user.id)
-    console.log(req.file)
+    // console.log(req.file)
 
     try {
         const { content, tag_id } = req.body
@@ -25,7 +25,7 @@ exports.create_post = async (req, res, next) => {
         if (req.user.id) {
             const newPost = await Post.create({
                 content,
-                picture: req.file.filename,
+                // picture: req.file.filename,
                 user_id: req.user.id,
                 tag_id
             })
@@ -71,7 +71,7 @@ exports.update_post = async (req, res, next) => {
     console.log("list", userPosts)
 
     try {
-        const { id, content, picture } = req.body
+        const { id, content } = req.body
         if (id === undefined) {
             return res.status(500).send({
                 message: "Problem found to update post"
@@ -81,7 +81,8 @@ exports.update_post = async (req, res, next) => {
         // console.log(userPosts.includes(req.body.id))   
         if (userPosts.includes(req.body.id)) {
             const newPost = await Post.update({
-                content, picture
+                content,
+                // picture: req.file.filename
             }, {
                 where: {
                     id

@@ -6,9 +6,12 @@ const { upload } = require("./../../app")
 const PostController = require('../controllers/post')
 
 
-router.use(checkAuth);
+router.use(checkAuth)
 
-router.post("/post/create-post", upload.single('image'), PostController.create_post)
+
+router.post("/post/create-post", PostController.create_post)
+
+// router.post("/post/create-post", upload.single('image'), PostController.create_post)
 
 router.patch("/post/update-post", PostController.update_post)
 
