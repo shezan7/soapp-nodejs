@@ -1,7 +1,8 @@
 const express = require('express')
 const router = express.Router()
 
-const checkAuth = require('../middleware/check-auth');
+const checkAuth = require('../middleware/check-auth')
+const { upload } = require("./../../app")
 
 const UsersController = require('../controllers/users')
 
@@ -17,6 +18,8 @@ router.post("/users/reset-password", UsersController.reset_password)
 router.get("/users/view-profile", checkAuth, UsersController.view_profile)
 
 router.post("/users/change-password", UsersController.change_password)
+
+router.patch("/users/add-profile-picture", checkAuth, upload.single('image'), UsersController.add_profile_picture)
 
 router.patch("/users/update-info", checkAuth, UsersController.users_update)
 

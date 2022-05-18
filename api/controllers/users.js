@@ -340,6 +340,44 @@ exports.change_password = async (req, res, next) => {
     }
 }
 
+exports.add_profile_picture = async (req, res, next) => {
+    try {
+        console.log(req.file)
+        if (req.user.id) {
+            const { id } = req.body
+            if (id === undefined || req.file === undefined) {
+                return res.status(500).send({
+                    message: "Problem found to add profile picture"
+                })
+            }
+            const user = await User.update({
+                profile_picture: req.file.path
+            }, {
+                where: {
+                    id
+                }
+            })
+            if (!user) {
+                const error = new Error('Profile picture not created!');
+                error.status = 500;
+                throw error;
+            }
+            res.json({
+                message: "Profile picture updated successfully"
+            })
+        }
+        else {
+            return res.status(403).json("Sorry, You are not eligible")
+        }
+    }
+    catch (err) {
+        console.log(err)
+        res.status(500).json({
+            error: err
+        })
+    }
+}
+
 exports.users_update = async (req, res, next) => {
     // console.log(req.body.id)
     // console.log(req.user.id)
