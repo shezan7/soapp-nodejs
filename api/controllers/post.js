@@ -71,7 +71,8 @@ exports.update_post = async (req, res, next) => {
     console.log("list", userPosts)
 
     try {
-        const { id, content } = req.body
+        const { id } = req.params
+        const { content } = req.body
         if (id === undefined) {
             return res.status(500).send({
                 message: "Problem found to update post"
@@ -79,7 +80,7 @@ exports.update_post = async (req, res, next) => {
         }
 
         // console.log(userPosts.includes(req.body.id))   
-        if (userPosts.includes(req.body.id)) {
+        if (userPosts.includes(req.params.id)) {
             const newPost = await Post.update({
                 content,
                 // picture: req.file.filename
@@ -124,7 +125,7 @@ exports.delete_post = async (req, res, next) => {
     console.log("list", userPosts)
 
     try {
-        const { id } = req.body
+        const { id } = req.params
         if (id === undefined) {
             return res.status(500).send({
                 message: "Problem found to delete post"
@@ -132,7 +133,7 @@ exports.delete_post = async (req, res, next) => {
         }
 
         // console.log(userPosts.includes(req.body.id))   
-        if (userPosts.includes(req.body.id)) {
+        if (userPosts.includes(req.params.id)) {
             const newPost = await Post.destroy({
                 where: {
                     id
@@ -405,7 +406,8 @@ exports.update_comment = async (req, res, next) => {
     console.log("list", userComments)
 
     try {
-        const { id, content } = req.body
+        const { id } = req.params
+        const { content } = req.body
         if (id === undefined || content === undefined) {
             return res.status(500).send({
                 message: "Problem found to update comment"
@@ -413,7 +415,7 @@ exports.update_comment = async (req, res, next) => {
         }
 
         // console.log(userComments.includes(req.body.id))   
-        if (userComments.includes(req.body.id)) {
+        if (userComments.includes(req.params.id)) {
             const newComment = await Comment.update({
                 content
             }, {
@@ -480,7 +482,7 @@ exports.delete_comment = async (req, res, next) => {
     console.log(postOwnerCommentList)
 
     try {
-        const { id } = req.body
+        const { id } = req.params
         if (id === undefined) {
             return res.status(500).send({
                 message: "Problem found to delete comment"
@@ -489,7 +491,7 @@ exports.delete_comment = async (req, res, next) => {
 
         // console.log(userComments.includes(req.body.id))
         // console.log(postOwnerCommentList.includes(req.body.id))
-        if ((userComments.includes(req.body.id)) || (postOwnerCommentList.includes(req.body.id))) {
+        if ((userComments.includes(req.params.id)) || (postOwnerCommentList.includes(req.params.id))) {
             const newComment = await Comment.destroy({
                 where: {
                     id

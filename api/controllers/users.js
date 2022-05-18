@@ -379,9 +379,9 @@ exports.add_profile_picture = async (req, res, next) => {
 }
 
 exports.users_update = async (req, res, next) => {
-    // console.log(req.body.id)
+    // console.log(req.params.id)
     // console.log(req.user.id)
-    if (req.user.id === req.body.id) {
+    if (req.user.id === req.params.id) {
         try {
             const { id } = req.params
             const { first_name, last_name, date_of_birth, gender, profile_picture } = req.body
