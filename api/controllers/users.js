@@ -344,8 +344,7 @@ exports.add_profile_picture = async (req, res, next) => {
     try {
         console.log(req.file)
         if (req.user.id) {
-            const { id } = req.params
-            if (id === undefined || req.file === undefined) {
+            if (req.file === undefined) {
                 return res.status(500).send({
                     message: "Problem found to add profile picture"
                 })
@@ -354,7 +353,7 @@ exports.add_profile_picture = async (req, res, next) => {
                 profile_picture: req.file.path
             }, {
                 where: {
-                    id
+                    id: req.user.id
                 }
             })
             if (!user) {
@@ -381,20 +380,14 @@ exports.add_profile_picture = async (req, res, next) => {
 exports.users_update = async (req, res, next) => {
     // console.log(req.params.id)
     // console.log(req.user.id)
-    if (req.user.id === req.params.id) {
+    if (req.user.id) {
         try {
-            const { id } = req.params
-            const { first_name, last_name, date_of_birth, gender, profile_picture } = req.body
-            if (id === undefined) {
-                return res.status(500).send({
-                    message: "Problem found to update user info"
-                })
-            }
+            const { first_name, last_name, date_of_birth, gender } = req.body
             const user = await User.update({
-                first_name, last_name, date_of_birth, gender, profile_picture
+                first_name, last_name, date_of_birth, gender
             }, {
                 where: {
-                    id
+                    id: req.user.id
                 }
             })
             res.json({

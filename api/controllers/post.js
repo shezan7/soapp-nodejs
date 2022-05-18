@@ -55,9 +55,9 @@ exports.create_post = async (req, res, next) => {
 }
 
 exports.update_post = async (req, res, next) => {
-    console.log("post_update", req.body)
+    console.log("post_update", req.params.id, req.body.content)
     // console.log("one", req.user.id);
-    const userPosts = [];
+    const userPosts = []
     const findUserId = await Post.findAll({
         where: {
             user_id: req.user.id,
@@ -73,14 +73,9 @@ exports.update_post = async (req, res, next) => {
     try {
         const { id } = req.params
         const { content } = req.body
-        if (id === undefined) {
-            return res.status(500).send({
-                message: "Problem found to update post"
-            })
-        }
 
-        // console.log(userPosts.includes(req.body.id))   
-        if (userPosts.includes(req.params.id)) {
+        console.log(userPosts.includes(+req.params.id))
+        if (userPosts.includes(+req.params.id)) {
             const newPost = await Post.update({
                 content,
                 // picture: req.file.filename
@@ -109,7 +104,7 @@ exports.update_post = async (req, res, next) => {
 }
 
 exports.delete_post = async (req, res, next) => {
-    console.log("post_delete", req.body)
+    console.log("post_delete", req.params)
     // console.log("one", req.user.id);
     const userPosts = [];
     const findUserId = await Post.findAll({
@@ -126,14 +121,8 @@ exports.delete_post = async (req, res, next) => {
 
     try {
         const { id } = req.params
-        if (id === undefined) {
-            return res.status(500).send({
-                message: "Problem found to delete post"
-            })
-        }
-
-        // console.log(userPosts.includes(req.body.id))   
-        if (userPosts.includes(req.params.id)) {
+        // console.log(userPosts.includes(+req.body.id))   
+        if (userPosts.includes(+req.params.id)) {
             const newPost = await Post.destroy({
                 where: {
                     id
@@ -390,8 +379,8 @@ exports.create_comment = async (req, res, next) => {
 }
 
 exports.update_comment = async (req, res, next) => {
-    console.log("comment_update", req.body);
-    // console.log("one", req.user.id);
+    console.log("comment_update", req.params, req.body);
+    // console.log("one", req.user.id)
     const userComments = [];
     const findUserId = await Comment.findAll({
         where: {
@@ -408,14 +397,14 @@ exports.update_comment = async (req, res, next) => {
     try {
         const { id } = req.params
         const { content } = req.body
-        if (id === undefined || content === undefined) {
+        if (content === undefined) {
             return res.status(500).send({
                 message: "Problem found to update comment"
             })
         }
 
-        // console.log(userComments.includes(req.body.id))   
-        if (userComments.includes(req.params.id)) {
+        // console.log(userComments.includes(+req.body.id))   
+        if (userComments.includes(+req.params.id)) {
             const newComment = await Comment.update({
                 content
             }, {
@@ -443,7 +432,7 @@ exports.update_comment = async (req, res, next) => {
 }
 
 exports.delete_comment = async (req, res, next) => {
-    console.log("comment_delete", req.body);
+    console.log("comment_delete", req.params);
     // console.log("one", req.user.id);
     const userComments = [];
     const findUserId = await Comment.findAll({
@@ -483,15 +472,9 @@ exports.delete_comment = async (req, res, next) => {
 
     try {
         const { id } = req.params
-        if (id === undefined) {
-            return res.status(500).send({
-                message: "Problem found to delete comment"
-            })
-        }
-
         // console.log(userComments.includes(req.body.id))
         // console.log(postOwnerCommentList.includes(req.body.id))
-        if ((userComments.includes(req.params.id)) || (postOwnerCommentList.includes(req.params.id))) {
+        if ((userComments.includes(+req.params.id)) || (postOwnerCommentList.includes(+req.params.id))) {
             const newComment = await Comment.destroy({
                 where: {
                     id

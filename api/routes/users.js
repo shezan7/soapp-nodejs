@@ -19,9 +19,9 @@ router.get("/users/view-profile", checkAuth, UsersController.view_profile)
 
 router.post("/users/change-password", UsersController.change_password)
 
-router.patch("/users/add-profile-picture/:id", checkAuth, upload.single('image'), UsersController.add_profile_picture)
+router.patch("/users/add-profile-picture", checkAuth, upload.single('image'), UsersController.add_profile_picture)
 
-router.patch("/users/update-info/:id", checkAuth, UsersController.users_update)
+router.patch("/users/update-info", checkAuth, UsersController.users_update)
 
 router.get("/users/view-userlist", checkAuth, UsersController.view_userlist)
 
