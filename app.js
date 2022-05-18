@@ -8,14 +8,33 @@ dotenv.config();
 const multer = require('multer')
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, '/uploads')
+        cb(null, './uploads/')
     },
     filename: function (req, file, cb) {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
-        cb(null, file.fieldname + '-' + uniqueSuffix)
+        const extName = file.originalname.split(".")[1]
+        const fileName = `${file.fieldname}-${uniqueSuffix}.${extName}`
+        cb(null, fileName)
+        // cb(null, file.fieldname + '-' + uniqueSuffix)
     }
 })
-const upload = multer({ storage: storage })
+const fileFilter = (req, file, cb) => {
+    if (file.mimetype === 'image/png' || file.mimetype === 'image/jpg' || file.mimetype === 'image/jpeg' || file.mimetype === 'image/jfif') {
+        cb(null, true)
+    }
+    else {
+        cb(null, false)
+    }
+}
+exports.upload = multer({
+    storage: storage,
+    limits: {
+        fileSize: 1024 * 1024 * 2
+    },
+    fileFilter: fileFilter
+})
+
+
 
 
 const cors = require('cors')
