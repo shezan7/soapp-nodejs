@@ -344,7 +344,7 @@ exports.add_profile_picture = async (req, res, next) => {
     try {
         console.log(req.file)
         if (req.user.id) {
-            const { id } = req.body
+            const { id } = req.params
             if (id === undefined || req.file === undefined) {
                 return res.status(500).send({
                     message: "Problem found to add profile picture"
@@ -383,7 +383,8 @@ exports.users_update = async (req, res, next) => {
     // console.log(req.user.id)
     if (req.user.id === req.body.id) {
         try {
-            const { id, first_name, last_name, date_of_birth, gender, profile_picture } = req.body
+            const { id } = req.params
+            const { first_name, last_name, date_of_birth, gender, profile_picture } = req.body
             if (id === undefined) {
                 return res.status(500).send({
                     message: "Problem found to update user info"
