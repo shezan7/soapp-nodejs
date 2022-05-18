@@ -189,11 +189,17 @@ exports.view_post = async (req, res, next) => {
                                         WHERE 
                                             f.user_id = ${req.user.id})
                         OR p.tag_id && (SELECT 
-                                        ARRAY_AGG (f.following_user) 
+                                            ARRAY_AGG (f.following_user) 
                                         FROM 
                                             soapp.follows f 
                                         WHERE 
-                                            f.user_id = ${req.user.id})::int[]);`
+                                            f.user_id = ${req.user.id})
+                        OR p.tag_id && (SELECT 
+                                            ARRAY_AGG (u.id)
+                                        FROM 
+                                            soapp.users u 
+                                        WHERE 
+                                            u.id = ${req.user.id}));`
                 , {
                     type: QueryTypes.SELECT
                 })
