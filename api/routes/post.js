@@ -13,6 +13,8 @@ router.post("/post/create-post", PostController.create_post)
 
 router.patch("/post/upload-image-to-post/:post_id", upload.single('image'), PostController.upload_image_to_post)
 
+// router.get("/post/get-upload-image/:post_id", PostController.get_upload_image)
+
 router.patch("/post/update-post/:id", PostController.update_post)
 
 router.delete("/post/delete-post/:id", PostController.delete_post)

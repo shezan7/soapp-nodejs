@@ -59,6 +59,18 @@ exports.upload_image_to_post = async (req, res, next) => {
     console.log("upload_image", req.file)
     // console.log("two", req.user)
     // console.log("three", req.user.id)
+    const userPosts = []
+    const findUserId = await Post.findAll({
+        where: {
+            user_id: req.user.id,
+        },
+        attributes: ["id"]
+    })
+    findUserId.map((val) => {
+        // console.log('Value', val.id);
+        userPosts.push(val.id)
+    })
+    console.log("list", userPosts)
     try {
         if (req.file === undefined) {
             return res.status(500).send({
@@ -66,7 +78,8 @@ exports.upload_image_to_post = async (req, res, next) => {
             })
         }
 
-        if (req.user.id) {
+        console.log(userPosts.includes(+req.params.post_id))
+        if (userPosts.includes(+req.params.post_id)) {
             const post = await Post.update({
                 picture: req.file.path
             }, {
@@ -98,6 +111,42 @@ exports.upload_image_to_post = async (req, res, next) => {
         })
     }
 }
+
+// exports.get_upload_image = async (req, res, next) => {
+//     console.log("post_id", req.params.post_id)
+//     // console.log("two", req.user)
+//     // console.log("three", req.user.id)
+//     try {
+//         if (req.user.id) {
+//             const post = await Post.findOne({
+//                 where: {
+//                     id: req.params.post_id
+//                 }
+//             })
+
+//             // console.log(post)
+//             // console.log("postID", post.id)   
+//             if (!post) {
+//                 const error = new Error('Image not found!');
+//                 error.status = 500;
+//                 throw error;
+//             }
+//             res.json({
+//                 data: "Image find successfully",
+//                 post
+//             })
+//         } else {
+//             return res.status(403).json("Sorry, You are not eligible")
+//         }
+//     }
+
+//     catch (err) {
+//         console.log(err)
+//         res.status(500).json({
+//             error: err
+//         })
+//     }
+// }
 
 exports.update_post = async (req, res, next) => {
     console.log("post_update", req.params.id, req.body.content)
