@@ -276,9 +276,9 @@ exports.view_profile = async (req, res, next) => {
 exports.change_password = async (req, res, next) => {
     console.log("change_password", req.body)
 
-    const { id, email, password, new_password, confirm_new_password } = req.body
+    const { email, password, new_password, confirm_new_password } = req.body
 
-    if (email === undefined || password === undefined) {
+    if (email === undefined || password === undefined || new_password === undefined || confirm_new_password === undefined) {
         return res.status(500).send({
             message: "Something went wrong!!!"
         })
@@ -304,7 +304,7 @@ exports.change_password = async (req, res, next) => {
                     password: hashPassword
                 }, {
                     where: {
-                        id
+                        id: req.user.id
                     }
                 })
                 const jwtToken = jwt.sign({

@@ -17,7 +17,7 @@ router.post("/users/reset-password", UsersController.reset_password)
 
 router.get("/users/view-profile", checkAuth, UsersController.view_profile)
 
-router.post("/users/change-password", UsersController.change_password)
+router.patch("/users/change-password", checkAuth, UsersController.change_password)
 
 router.patch("/users/add-profile-picture", checkAuth, upload.single('image'), UsersController.add_profile_picture)
 
