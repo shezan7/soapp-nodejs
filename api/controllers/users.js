@@ -394,7 +394,7 @@ exports.users_update = async (req, res, next) => {
                 message: "User info updated successfully"
             })
         } catch (error) {
-            return res.status(500).json(err)
+            return res.status(500).json(error)
         }
     }
     else {
