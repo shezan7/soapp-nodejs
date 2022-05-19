@@ -54,6 +54,51 @@ exports.create_post = async (req, res, next) => {
     }
 }
 
+exports.upload_image_to_post = async (req, res, next) => {
+    console.log("post_id", req.params.post_id)
+    console.log("upload_image", req.file)
+    // console.log("two", req.user)
+    // console.log("three", req.user.id)
+    try {
+        if (req.file === undefined) {
+            return res.status(500).send({
+                message: "Your image has some problem!"
+            })
+        }
+
+        if (req.user.id) {
+            const post = await Post.update({
+                picture: req.file.path
+            }, {
+                where: {
+                    id: req.params.post_id
+                }
+            })
+
+            // console.log(post)
+            // console.log("postID", post.id)   
+            if (!post) {
+                const error = new Error('Image not uploaded!');
+                error.status = 500;
+                throw error;
+            }
+            res.json({
+                data: "Image upload successfully",
+                post
+            })
+        } else {
+            return res.status(403).json("Sorry, You are not eligible")
+        }
+    }
+
+    catch (err) {
+        console.log(err)
+        res.status(500).json({
+            error: err
+        })
+    }
+}
+
 exports.update_post = async (req, res, next) => {
     console.log("post_update", req.params.id, req.body.content)
     // console.log("one", req.user.id);

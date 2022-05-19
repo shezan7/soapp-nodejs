@@ -11,7 +11,7 @@ router.use(checkAuth)
 
 router.post("/post/create-post", PostController.create_post)
 
-// router.post("/post/create-post", upload.single('image'), PostController.create_post)
+router.patch("/post/upload-image-to-post/:post_id", upload.single('image'), PostController.upload_image_to_post)
 
 router.patch("/post/update-post/:id", PostController.update_post)
 
