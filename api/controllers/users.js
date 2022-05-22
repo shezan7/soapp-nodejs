@@ -159,8 +159,13 @@ exports.forgot_password = async (req, res, next) => {
             }
             transporter.sendMail(mailOptions, (err, data) => {
                 if (err) {
-                    return res.status(401).send({
+                    res.status(401).send({
                         message: "Link not sent"
+                    })
+                    PasswordReset.destroy({
+                        where: {
+                            email
+                        }
                     })
                 }
                 else {
