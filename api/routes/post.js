@@ -23,6 +23,8 @@ router.get("/post/view-post", PostController.view_post)
 
 router.post("/post/like", PostController.post_like)
 
+router.get("/post/total-like/:post_id", PostController.total_like)
+
 router.post("/post/unlike", PostController.post_unlike)
 
 router.post("/post/create-comment", PostController.create_comment)

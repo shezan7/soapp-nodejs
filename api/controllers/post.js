@@ -321,7 +321,7 @@ exports.view_post = async (req, res, next) => {
 exports.post_like = async (req, res, next) => {
     console.log("like", req.body)
     try {
-        const { post_id } = req.body;
+        const { post_id } = req.body
         if (post_id === undefined) {
             return res.status(500).send({
                 message: "Problem found to like this post"
@@ -420,6 +420,57 @@ exports.post_unlike = async (req, res, next) => {
             res.json({
                 data: "You already unlike this post"
             })
+        }
+    }
+
+    catch (err) {
+        console.log(err)
+        res.status(500).json({
+            error: err
+        })
+    }
+}
+
+exports.total_like = async (req, res, next) => {
+    // console.log("two", req.user);
+    // console.log("three", req.user.id);
+
+    // const user_id = req.user.id
+
+    try {
+        const { post_id } = req.params
+        if (post_id === undefined) {
+            return res.status(500).send({
+                message: "Problem found to see total like for this post"
+            })
+        }
+        if (req.user.id) {
+            const totalLike = await db.query(
+                `SELECT
+                    COUNT (l.user_id) AS total_like
+                FROM 
+                    soapp.likes l,
+                    soapp.posts p
+                WHERE 
+                    p.id = l.post_id
+                    AND p.id = ${post_id};`
+                , {
+                    type: QueryTypes.SELECT
+                })
+
+            // console.log(totalLike.length)
+            if (!totalLike) {
+                const error = new Error('Found some problem');
+                error.status = 500;
+                throw error;
+            }
+            res.json({
+                data: "Total like counted successfully",
+                totalLike
+            })
+        }
+        else {
+            return res.status(403).json("Sorry, You are not eligible")
         }
     }
 

@@ -644,3 +644,87 @@ exports.users_unfollow = async (req, res, next) => {
         })
     }
 }
+
+exports.view_followers = async (req, res, next) => {
+    // console.log("two", req.user)
+    // console.log("three", req.user.id)
+
+    try {
+        if (req.user.id) {
+            const followers = await db.query(
+                `SELECT
+                    COUNT (f.following_user) AS followers
+                FROM 
+                    soapp.follows f,
+                    soapp.users u
+                WHERE 
+                    u.id = f.following_user
+                    AND u.id = ${req.user.id};`
+                , {
+                    type: QueryTypes.SELECT
+                })
+
+            if (!followers) {
+                const error = new Error('Found some problem');
+                error.status = 500;
+                throw error;
+            }
+            res.json({
+                data: "Followers counted successfully",
+                followers
+            })
+        }
+        else {
+            return res.status(403).json("Sorry, You are not eligible")
+        }
+    }
+
+    catch (err) {
+        console.log(err)
+        res.status(500).json({
+            error: err
+        })
+    }
+}
+
+exports.view_following_users = async (req, res, next) => {
+    // console.log("two", req.user)
+    // console.log("three", req.user.id)
+
+    try {
+        if (req.user.id) {
+            const following_users = await db.query(
+                `SELECT
+                    COUNT (f.user_id) AS following_users
+                FROM 
+                    soapp.follows f,
+                    soapp.users u
+                WHERE 
+                    u.id = f.user_id
+                    AND u.id = ${req.user.id};`
+                , {
+                    type: QueryTypes.SELECT
+                })
+
+            if (!following_users) {
+                const error = new Error('Found some problem');
+                error.status = 500;
+                throw error;
+            }
+            res.json({
+                data: "Following Users counted successfully",
+                following_users
+            })
+        }
+        else {
+            return res.status(403).json("Sorry, You are not eligible")
+        }
+    }
+
+    catch (err) {
+        console.log(err)
+        res.status(500).json({
+            error: err
+        })
+    }
+}

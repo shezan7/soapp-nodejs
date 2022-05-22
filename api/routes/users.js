@@ -31,7 +31,9 @@ router.post("/users/follow", checkAuth, UsersController.users_follow)
 
 router.post("/users/unfollow", checkAuth, UsersController.users_unfollow)
 
+router.get("/users/view-followers", checkAuth, UsersController.view_followers)
 
+router.get("/users/view-following_users", checkAuth, UsersController.view_following_users)
 
 
 
