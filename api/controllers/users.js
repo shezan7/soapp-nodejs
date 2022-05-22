@@ -189,8 +189,13 @@ exports.reset_password = async (req, res, next) => {
     const { token, email } = req.params
 
     if (email === undefined || token === undefined || new_password === undefined || confirm_new_password === undefined) {
-        return res.status(500).send({
+        res.status(500).send({
             message: "Something went wrong!!!"
+        })
+        await PasswordReset.destroy({
+            where: {
+                email
+            }
         })
     }
     try {
@@ -200,8 +205,13 @@ exports.reset_password = async (req, res, next) => {
             }
         })
         if (!user) {
-            return res.status(401).send({
+            res.status(401).send({
                 message: "User does not exist"
+            })
+            await PasswordReset.destroy({
+                where: {
+                    email
+                }
             })
         }
         const passResetToken = await PasswordReset.findOne({
@@ -210,8 +220,13 @@ exports.reset_password = async (req, res, next) => {
             }
         })
         if (!passResetToken) {
-            return res.status(401).send({
+            res.status(401).send({
                 message: "Token not found!"
+            })
+            await PasswordReset.destroy({
+                where: {
+                    email
+                }
             })
         }
         else {
@@ -228,22 +243,32 @@ exports.reset_password = async (req, res, next) => {
                 res.status(200).json({
                     message: "Password recover successfull"
                 })
+                await PasswordReset.destroy({
+                    where: {
+                        email
+                    }
+                })
             } else {
-                return res.status(401).send({
+                res.status(401).send({
                     message: "Password doesn't match"
+                })
+                await PasswordReset.destroy({
+                    where: {
+                        email
+                    }
                 })
             }
         }
-        await PasswordReset.destroy({
-            where: {
-                email
-            }
-        })
     }
     catch (err) {
         console.log(err)
         res.status(500).json({
             error: err
+        })
+        await PasswordReset.destroy({
+            where: {
+                email
+            }
         })
     }
 }
