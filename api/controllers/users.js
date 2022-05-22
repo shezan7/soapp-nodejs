@@ -183,6 +183,11 @@ exports.reset_password = async (req, res, next) => {
     const { new_password, confirm_new_password } = req.body
     const { token, email } = req.params
 
+    if (email === undefined || token === undefined || new_password === undefined || confirm_new_password === undefined) {
+        return res.status(500).send({
+            message: "Something went wrong!!!"
+        })
+    }
     try {
         const user = await User.findOne({
             where: {

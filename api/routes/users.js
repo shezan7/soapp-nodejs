@@ -13,7 +13,7 @@ router.post("/users/login", UsersController.users_login)
 
 router.post("/users/forgot-password", UsersController.forgot_password)
 
-router.post("/users/reset-password", UsersController.reset_password)
+router.post("/users/reset-password/:token/:email", UsersController.reset_password)
 
 router.get("/users/view-profile", checkAuth, UsersController.view_profile)
 
