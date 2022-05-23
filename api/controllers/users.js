@@ -185,8 +185,7 @@ exports.forgot_password = async (req, res, next) => {
 }
 
 exports.reset_password = async (req, res, next) => {
-    const { new_password, confirm_new_password } = req.body
-    const { token, email } = req.params
+    const { email, token, new_password, confirm_new_password } = req.body
 
     if (email === undefined || token === undefined || new_password === undefined || confirm_new_password === undefined) {
         res.status(500).send({
