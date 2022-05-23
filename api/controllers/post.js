@@ -261,10 +261,12 @@ exports.view_post = async (req, res, next) => {
                     p.picture,
                     p.tag_id,
                     u.first_name,
-                    u.last_name
+                    u.last_name,
+                    COUNT (l.user_id) AS total_like
                 FROM
-                    soapp.posts p,
-                    soapp.users u
+                    soapp.users u,
+                    soapp.posts p
+                    LEFT JOIN soapp.likes l ON p.id = l.post_id
                 WHERE
                     u.id = p.user_id
                     AND (p.user_id = ${req.user.id}
@@ -285,7 +287,11 @@ exports.view_post = async (req, res, next) => {
                                         FROM 
                                             soapp.users u 
                                         WHERE 
-                                            u.id = ${req.user.id}));`
+                                            u.id = ${req.user.id}))
+                GROUP BY 
+                    p.id, 
+                    u.first_name, 
+                    u.last_name;`
                 , {
                     type: QueryTypes.SELECT
                 })
