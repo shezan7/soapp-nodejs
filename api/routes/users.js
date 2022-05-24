@@ -7,34 +7,28 @@ const { upload } = require("./../../app")
 const UsersController = require('../controllers/users')
 
 
-router.post("/users/register", UsersController.users_signup)
+router.use(checkAuth)
 
-router.post("/users/login", UsersController.users_login)
+router.get("/view-profile", UsersController.view_profile)
 
-router.post("/users/forgot-password", UsersController.forgot_password)
+router.patch("/change-password", UsersController.change_password)
 
-router.post("/users/reset-password", UsersController.reset_password)
+router.patch("/add-profile-picture", upload.single('image'), UsersController.add_profile_picture)
 
-router.get("/users/view-profile", checkAuth, UsersController.view_profile)
+router.patch("/update-info", UsersController.users_update)
 
-router.patch("/users/change-password", checkAuth, UsersController.change_password)
+router.get("/view-userlist", UsersController.view_userlist)
 
-router.patch("/users/add-profile-picture", checkAuth, upload.single('image'), UsersController.add_profile_picture)
+router.get("/view-following-userlist", UsersController.view_following_users)
 
-router.patch("/users/update-info", checkAuth, UsersController.users_update)
+router.post("/follow", UsersController.users_follow)
 
-router.get("/users/view-userlist", checkAuth, UsersController.view_userlist)
+router.post("/unfollow", UsersController.users_unfollow)
 
-router.get("/users/view-following-userlist", checkAuth, UsersController.view_following_users)
+router.get("/view-followers", UsersController.view_followers)
 
-router.post("/users/follow", checkAuth, UsersController.users_follow)
-
-router.post("/users/unfollow", checkAuth, UsersController.users_unfollow)
-
-router.get("/users/view-followers", checkAuth, UsersController.view_followers)
-
-router.get("/users/view-following_users", checkAuth, UsersController.view_following_users)
+router.get("/view-following_users", UsersController.view_following_users)
 
 
 
-module.exports = router;
+module.exports = router

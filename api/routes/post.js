@@ -8,30 +8,29 @@ const PostController = require('../controllers/post')
 
 router.use(checkAuth)
 
+router.post("/create-post", PostController.create_post)
 
-router.post("/post/create-post", PostController.create_post)
-
-router.patch("/post/upload-image-to-post/:post_id", upload.single('image'), PostController.upload_image_to_post)
+router.patch("/upload-image-to-post/:post_id", upload.single('image'), PostController.upload_image_to_post)
 
 // router.get("/post/get-upload-image/:post_id", PostController.get_upload_image)
 
-router.patch("/post/update-post/:id", PostController.update_post)
+router.patch("/update-post/:id", PostController.update_post)
 
-router.delete("/post/delete-post/:id", PostController.delete_post)
+router.delete("/delete-post/:id", PostController.delete_post)
 
-router.get("/post/view-post", PostController.view_post)
+router.get("/view-post", PostController.view_post)
 
-router.post("/post/like", PostController.post_like)
+router.post("/like", PostController.post_like)
 
-router.get("/post/total-like/:post_id", PostController.total_like)
+router.get("/total-like/:post_id", PostController.total_like)
 
-router.post("/post/unlike", PostController.post_unlike)
+router.post("/unlike", PostController.post_unlike)
 
-router.post("/post/create-comment", PostController.create_comment)
+router.post("/create-comment", PostController.create_comment)
 
-router.patch("/post/update-comment/:id", PostController.update_comment)
+router.patch("/update-comment/:id", PostController.update_comment)
 
-router.delete("/post/delete-comment/:id", PostController.delete_comment)
+router.delete("/delete-comment/:id", PostController.delete_comment)
 
 
 

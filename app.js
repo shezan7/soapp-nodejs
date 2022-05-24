@@ -42,12 +42,13 @@ const cors = require('cors')
 app.use(express.json())
 app.use(cors())
 
-
+const authRoutes = require('./api/routes/auth')
 const userRoutes = require('./api/routes/users')
 const postRoutes = require('./api/routes/post')
 
-app.use(userRoutes)
-app.use(postRoutes)
+app.use('/auth', authRoutes)
+app.use('/users', userRoutes)
+app.use('/post', postRoutes)
 
 
 app.use((error, req, res, next) => {
