@@ -11,30 +11,21 @@ const Follow = require('../sequelize-models/Follow')
 
 exports.view_profile = async (req, res, next) => {
     try {
-        if (req.user.id) {
-            const user = await db.query(
-                `SELECT
+        const user = await db.query(
+            `SELECT
                     *
                 FROM
                     soapp.users u
                 WHERE
                     u.id = ${req.user.id};`
-                , {
-                    type: QueryTypes.SELECT
-                })
-            if (!user) {
-                const error = new Error('Problem found to view profile');
-                error.status = 500;
-                throw error;
-            }
-            res.json({
-                data: "Profile information find successfully",
-                user
+            , {
+                type: QueryTypes.SELECT
             })
-        }
-        else {
-            return res.status(403).json("Sorry, You are not eligible")
-        }
+
+        res.status(200).json({
+            message: "Profile information find successfully",
+            data: user
+        })
     }
     catch (err) {
         console.log(err)
@@ -49,9 +40,9 @@ exports.change_password = async (req, res, next) => {
 
     const { email, password, new_password, confirm_new_password } = req.body
 
-    if (email === undefined || password === undefined || new_password === undefined || confirm_new_password === undefined) {
+    if (!email || !password || !new_password || !confirm_new_password) {
         return res.status(500).send({
-            message: "Something went wrong!!!"
+            message: "Some credential is missing!"
         })
     }
 
@@ -62,7 +53,7 @@ exports.change_password = async (req, res, next) => {
             }
         })
         if (!user) {
-            return res.status(401).send({
+            return res.status(404).send({
                 message: "Email or Password is incorrect!"
             })
         }
@@ -78,6 +69,11 @@ exports.change_password = async (req, res, next) => {
                         id: req.user.id
                     }
                 })
+                if (!changePassword) {
+                    res.status(404).send({
+                        message: "Password change failed!"
+                    })
+                }
                 const jwtToken = jwt.sign({
                     id: user.id
                 }, process.env.JWT_KEY,
@@ -86,19 +82,19 @@ exports.change_password = async (req, res, next) => {
                     })
 
                 res.status(200).json({
-                    data: "Password reset successfull",
+                    message: "Password reset successfull",
                     token: jwtToken,
                     userId: user.id
                 })
                 console.log(user.id)
             } else {
-                return res.status(401).send({
+                return res.status(404).send({
                     message: "Password doesn't match"
                 })
             }
         }
         else {
-            return res.status(401).send({
+            return res.status(404).send({
                 message: "Email or Password is incorrect!"
             })
         }
@@ -114,31 +110,26 @@ exports.change_password = async (req, res, next) => {
 exports.add_profile_picture = async (req, res, next) => {
     try {
         console.log(req.file)
-        if (req.user.id) {
-            if (req.file === undefined) {
-                return res.status(500).send({
-                    message: "Problem found to add profile picture"
-                })
-            }
-            const user = await User.update({
-                profile_picture: req.file.path
-            }, {
-                where: {
-                    id: req.user.id
-                }
-            })
-            if (!user) {
-                const error = new Error('Profile picture not created!');
-                error.status = 500;
-                throw error;
-            }
-            res.json({
-                message: "Profile picture updated successfully"
+        if (req.file === undefined) {
+            return res.status(400).send({
+                message: "Image file is missing"
             })
         }
-        else {
-            return res.status(403).json("Sorry, You are not eligible")
+        const user = await User.update({
+            profile_picture: req.file.path
+        }, {
+            where: {
+                id: req.user.id
+            }
+        })
+        if (!user) {
+            return res.status(404).send({
+                message: "Profile picture not created!"
+            })
         }
+        res.status(200).json({
+            message: "Profile picture updated successfully"
+        })
     }
     catch (err) {
         console.log(err)
@@ -149,27 +140,29 @@ exports.add_profile_picture = async (req, res, next) => {
 }
 
 exports.users_update = async (req, res, next) => {
-    // console.log(req.params.id)
     // console.log(req.user.id)
-    if (req.user.id) {
-        try {
-            const { first_name, last_name, date_of_birth, gender } = req.body
-            const user = await User.update({
-                first_name, last_name, date_of_birth, gender
-            }, {
-                where: {
-                    id: req.user.id
-                }
+    try {
+        const { first_name, last_name, date_of_birth, gender } = req.body
+        const user = await User.update({
+            first_name, last_name, date_of_birth, gender
+        }, {
+            where: {
+                id: req.user.id
+            }
+        })
+        if (!user) {
+            return res.status(404).send({
+                message: "User info not updated!"
             })
-            res.json({
-                message: "User info updated successfully"
-            })
-        } catch (error) {
-            return res.status(500).json(error)
         }
-    }
-    else {
-        return res.status(403).json("Permision denied")
+        res.status(200).json({
+            message: "User info updated successfully"
+        })
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            error: err
+        })
     }
 }
 
@@ -197,19 +190,14 @@ exports.view_userlist = async (req, res, next) => {
                 type: QueryTypes.SELECT
             })
 
-        // console.log(post.length)
-        if (!user) {
-            const error = new Error('Problem found to view users');
-            error.status = 500;
-            throw error;
-        }
+        // console.log(user.length)
         if (user.length === 0) {
-            return res.status(403).json("users not found!")
+            return res.status(404).json("users not found!")
         }
 
-        res.json({
-            data: "All users find successfully",
-            user
+        res.status(200).json({
+            message: "All users find successfully",
+            data: user
         })
     }
     catch (err) {
@@ -244,18 +232,13 @@ exports.view_following_users = async (req, res, next) => {
             })
 
         // console.log(post.length)
-        if (!user) {
-            const error = new Error('Problem found to view following users');
-            error.status = 500;
-            throw error;
-        }
         if (user.length === 0) {
-            return res.status(403).json("Following users not found!")
+            return res.status(404).json("Following users not found!")
         }
 
-        res.json({
-            data: "Following users find successfully",
-            user
+        res.status(200).json({
+            message: "Following users find successfully",
+            data: user
         })
     }
     catch (err) {
@@ -270,12 +253,11 @@ exports.users_follow = async (req, res, next) => {
     console.log("follow", req.body)
     try {
         const { following_user } = req.body
-        if (following_user === undefined) {
-            return res.status(500).send({
-                message: "Found problem to follow this user"
+        if (!following_user) {
+            return res.status(400).send({
+                message: "following user is missing"
             })
         }
-
         // console.log("one", req.user.id);
         const FollowList = [];
         const findUserId = await Follow.findAll({
@@ -292,8 +274,8 @@ exports.users_follow = async (req, res, next) => {
 
         // console.log(FollowList.includes(following_user))
         if (FollowList.includes(following_user)) {
-            res.json({
-                data: "You already follow this user"
+            res.status(404).json({
+                message: "You already follow this user"
             })
         } else {
             const newFollow = await Follow.create({
@@ -304,14 +286,14 @@ exports.users_follow = async (req, res, next) => {
             // console.log("newFollowID", newFollow.id)
 
             if (!newFollow) {
-                const error = new Error('Follow not generated!');
-                error.status = 500;
-                throw error;
+                return res.status(404).send({
+                    message: "Follow not generated!"
+                })
             }
 
-            res.json({
-                data: "New Follow generated successfully",
-                newFollow
+            res.status(200).json({
+                message: "New Follow generated successfully",
+                data: newFollow
             })
         }
     }
@@ -328,12 +310,11 @@ exports.users_unfollow = async (req, res, next) => {
     console.log("unfollow", req.body)
     try {
         const { following_user } = req.body
-        if (following_user === undefined) {
+        if (!following_user) {
             return res.status(500).send({
-                message: "Problem found to unfollow this user"
+                message: "Following user is missing"
             })
         }
-
         // console.log("one", req.user.id);
         const FollowList = [];
         const findUserId = await Follow.findAll({
@@ -358,17 +339,17 @@ exports.users_unfollow = async (req, res, next) => {
             // console.log(unfollow)
             // console.log("unfollowID", unfollow.id)   
             if (!unfollow) {
-                const error = new Error('Unfollow not generated!');
-                error.status = 500;
-                throw error;
+                return res.status(404).send({
+                    message: "Unfollow not generated!"
+                })
             }
             res.json({
-                data: "New Unfollow generated successfully",
-                unfollow
+                message: "Unfollow generated successfully",
+                data: unfollow
             })
         } else {
-            res.json({
-                data: "You already unfollow this user"
+            res.status(404).json({
+                message: "You already unfollow this user"
             })
         }
     }
@@ -386,9 +367,8 @@ exports.view_followers = async (req, res, next) => {
     // console.log("three", req.user.id)
 
     try {
-        if (req.user.id) {
-            const followers = await db.query(
-                `SELECT
+        const followers = await db.query(
+            `SELECT
                     COUNT (f.following_user) AS followers
                 FROM 
                     soapp.follows f,
@@ -396,23 +376,14 @@ exports.view_followers = async (req, res, next) => {
                 WHERE 
                     u.id = f.following_user
                     AND u.id = ${req.user.id};`
-                , {
-                    type: QueryTypes.SELECT
-                })
-
-            if (!followers) {
-                const error = new Error('Found some problem');
-                error.status = 500;
-                throw error;
-            }
-            res.json({
-                data: "Followers counted successfully",
-                followers
+            , {
+                type: QueryTypes.SELECT
             })
-        }
-        else {
-            return res.status(403).json("Sorry, You are not eligible")
-        }
+
+        res.status(200).json({
+            message: "Followers counted successfully",
+            data: followers
+        })
     }
 
     catch (err) {
@@ -428,9 +399,8 @@ exports.view_following_users = async (req, res, next) => {
     // console.log("three", req.user.id)
 
     try {
-        if (req.user.id) {
-            const following_users = await db.query(
-                `SELECT
+        const following_users = await db.query(
+            `SELECT
                     COUNT (f.user_id) AS following_users
                 FROM 
                     soapp.follows f,
@@ -438,23 +408,14 @@ exports.view_following_users = async (req, res, next) => {
                 WHERE 
                     u.id = f.user_id
                     AND u.id = ${req.user.id};`
-                , {
-                    type: QueryTypes.SELECT
-                })
-
-            if (!following_users) {
-                const error = new Error('Found some problem');
-                error.status = 500;
-                throw error;
-            }
-            res.json({
-                data: "Following Users counted successfully",
-                following_users
+            , {
+                type: QueryTypes.SELECT
             })
-        }
-        else {
-            return res.status(403).json("Sorry, You are not eligible")
-        }
+
+        res.status(200).json({
+            message: "Following Users counted successfully",
+            data: following_users
+        })
     }
 
     catch (err) {

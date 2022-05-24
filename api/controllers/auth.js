@@ -11,9 +11,9 @@ const PasswordReset = require('../sequelize-models/ResetPassword')
 exports.users_signup = async (req, res, next) => {
     console.log("users_register", req.body)
     const { email, password, first_name, last_name, date_of_birth, gender, profile_picture } = req.body
-    if (email === undefined || password === undefined || first_name === undefined || last_name === undefined || date_of_birth === undefined || gender === undefined) {
-        return res.status(500).send({
-            message: "Something went wrong!"
+    if (!email || !password || !first_name || !last_name || !date_of_birth || !gender) {
+        return res.status(400).send({
+            message: "Some credential is missing!"
         })
     }
     const salt = await bcrypt.genSalt(10)
@@ -31,14 +31,15 @@ exports.users_signup = async (req, res, next) => {
         // console.log("new", newUser)
 
         if (!newUser) {
-            const error = new Error('User not created!')
-            error.status = 500;
-            throw error;
+            return res.status(500).send({
+                message: "User not created!"
+            })
         }
         else {
             console.log(newUser);
             res.status(200).json({
-                data: "User registered successfully", newUser
+                message: "User registered successfully",
+                data: newUser
             })
         }
     }
@@ -56,9 +57,9 @@ exports.users_login = async (req, res, next) => {
 
     const { email, password } = req.body
 
-    if (email === undefined || password === undefined) {
-        return res.status(500).send({
-            message: "Something went wrong!!!"
+    if (!email || !password) {
+        return res.status(400).send({
+            message: "Email or Password is missing!!!"
         })
     }
 
@@ -69,9 +70,9 @@ exports.users_login = async (req, res, next) => {
             }
         })
         if (!user) {
-            const error = new Error('Email or Password is incorrect!')
-            error.status = 405
-            throw error
+            return res.status(404).send({
+                message: "Email or Password is incorrect!"
+            })
         }
 
         const validPassword = await bcrypt.compare(password, user.password)
@@ -84,14 +85,14 @@ exports.users_login = async (req, res, next) => {
                 })
 
             res.status(200).json({
-                data: "User login successfull",
+                message: "User login successfull",
                 token: jwtToken,
                 userId: user.id
             })
             console.log(user.id)
         }
         else {
-            return res.status(401).send({
+            return res.status(404).send({
                 message: "Email or Password is incorrect!"
             })
         }
@@ -109,9 +110,9 @@ exports.forgot_password = async (req, res, next) => {
 
     const { email } = req.body
 
-    if (email === undefined) {
-        return res.status(500).send({
-            message: "Something went wrong!!!"
+    if (!email) {
+        return res.status(400).send({
+            message: "Email is missing"
         })
     }
 
@@ -122,7 +123,7 @@ exports.forgot_password = async (req, res, next) => {
             }
         })
         if (!user) {
-            return res.status(401).send({
+            return res.status(404).send({
                 message: "User does not exist"
             })
         }
@@ -133,7 +134,7 @@ exports.forgot_password = async (req, res, next) => {
                 token
             })
             if (!passwordReset) {
-                return res.status(401).send({
+                return res.status(404).send({
                     message: "Password reset not created"
                 })
             }
@@ -156,7 +157,7 @@ exports.forgot_password = async (req, res, next) => {
             transporter.sendMail(mailOptions, (err, data) => {
                 if (err) {
                     console.log(err)
-                    res.status(401).send({
+                    res.status(404).send({
                         message: "Link not sent"
                     })
                     PasswordReset.destroy({
@@ -184,9 +185,9 @@ exports.forgot_password = async (req, res, next) => {
 exports.reset_password = async (req, res, next) => {
     const { email, token, new_password, confirm_new_password } = req.body
 
-    if (email === undefined || token === undefined || new_password === undefined || confirm_new_password === undefined) {
+    if (!email || !token || !new_password || !confirm_new_password) {
         res.status(500).send({
-            message: "Something went wrong!!!"
+            message: "Some credential is missing!"
         })
         await PasswordReset.destroy({
             where: {
@@ -201,7 +202,7 @@ exports.reset_password = async (req, res, next) => {
             }
         })
         if (!user) {
-            res.status(401).send({
+            res.status(404).send({
                 message: "User does not exist"
             })
             await PasswordReset.destroy({
@@ -216,7 +217,7 @@ exports.reset_password = async (req, res, next) => {
             }
         })
         if (!passResetToken) {
-            res.status(401).send({
+            res.status(404).send({
                 message: "Token not found!"
             })
             await PasswordReset.destroy({
@@ -236,6 +237,11 @@ exports.reset_password = async (req, res, next) => {
                         email
                     }
                 })
+                if (!updatedPassword) {
+                    res.status(404).send({
+                        message: "Password recover failed!"
+                    })
+                }
                 res.status(200).json({
                     message: "Password recover successfull"
                 })
@@ -245,7 +251,7 @@ exports.reset_password = async (req, res, next) => {
                     }
                 })
             } else {
-                res.status(401).send({
+                res.status(404).send({
                     message: "Password doesn't match"
                 })
                 await PasswordReset.destroy({
