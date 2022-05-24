@@ -20,11 +20,13 @@ router.delete("/delete-post/:id", PostController.delete_post)
 
 router.get("/view-post", PostController.view_post)
 
-router.post("/like", PostController.post_like)
+router.post("/like-unlike", PostController.post_like_unlike)
+
+// router.post("/like", PostController.post_like)
+
+// router.post("/unlike", PostController.post_unlike)
 
 router.get("/total-like/:post_id", PostController.total_like)
-
-router.post("/unlike", PostController.post_unlike)
 
 router.post("/create-comment", PostController.create_comment)
 

@@ -311,7 +311,7 @@ exports.view_post = async (req, res, next) => {
     }
 }
 
-exports.post_like = async (req, res, next) => {
+exports.post_like_unlike = async (req, res, next) => {
     console.log("like", req.body)
     try {
         const { post_id } = req.body
@@ -353,46 +353,6 @@ exports.post_like = async (req, res, next) => {
                 data: newLike
             })
         } else {
-            res.status(404).json({
-                message: "You already like this post"
-            })
-        }
-    }
-
-    catch (err) {
-        console.log(err)
-        res.status(500).json({
-            error: err
-        })
-    }
-}
-
-exports.post_unlike = async (req, res, next) => {
-    console.log("unlike", req.body)
-    try {
-        const { post_id } = req.body
-        if (!post_id) {
-            return res.status(400).send({
-                message: "Post is missing which you want to unlike"
-            })
-        }
-
-        // console.log("one", req.user.id);
-        const LikeList = [];
-        const findUserId = await Like.findAll({
-            where: {
-                user_id: req.user.id,
-            },
-            attributes: ["post_id"]
-        })
-        findUserId.map((val) => {
-            // console.log('Value', val.post_id);
-            LikeList.push(val.post_id)
-        })
-        console.log("list", LikeList)
-
-        console.log(LikeList.includes(post_id))
-        if ((LikeList.includes(post_id))) {
             const Unlilke = await Like.destroy({
                 where: {
                     post_id
@@ -409,10 +369,6 @@ exports.post_unlike = async (req, res, next) => {
                 message: "Unlike created successfully",
                 data: Unlilke
             })
-        } else {
-            res.status(404).json({
-                message: "You already unlike this post"
-            })
         }
     }
 
@@ -423,6 +379,119 @@ exports.post_unlike = async (req, res, next) => {
         })
     }
 }
+
+// exports.post_like = async (req, res, next) => {
+//     console.log("like", req.body)
+//     try {
+//         const { post_id } = req.body
+//         if (!post_id) {
+//             return res.status(500).send({
+//                 message: "Post is missing which you want to like"
+//             })
+//         }
+
+//         // console.log("one", req.user.id);
+//         const LikeList = [];
+//         const findUserId = await Like.findAll({
+//             where: {
+//                 user_id: req.user.id,
+//             },
+//             attributes: ["post_id"]
+//         })
+//         findUserId.map((val) => {
+//             // console.log('Value', val.post_id);
+//             LikeList.push(val.post_id)
+//         })
+//         console.log("list", LikeList)
+
+//         console.log(LikeList.includes(post_id))
+//         if (!(LikeList.includes(post_id))) {
+//             const newLike = await Like.create({
+//                 user_id: req.user.id,
+//                 post_id
+//             })
+//             // console.log(newLike)
+//             // console.log("newLikeID", newLike.id)   
+//             if (!newLike) {
+//                 return res.status(404).send({
+//                     message: "Like not created!"
+//                 })
+//             }
+//             res.status(200).json({
+//                 message: "Like created successfully",
+//                 data: newLike
+//             })
+//         } else {
+//             res.status(404).json({
+//                 message: "You already like this post"
+//             })
+//         }
+//     }
+
+//     catch (err) {
+//         console.log(err)
+//         res.status(500).json({
+//             error: err
+//         })
+//     }
+// }
+
+// exports.post_unlike = async (req, res, next) => {
+//     console.log("unlike", req.body)
+//     try {
+//         const { post_id } = req.body
+//         if (!post_id) {
+//             return res.status(400).send({
+//                 message: "Post is missing which you want to unlike"
+//             })
+//         }
+
+//         // console.log("one", req.user.id);
+//         const LikeList = [];
+//         const findUserId = await Like.findAll({
+//             where: {
+//                 user_id: req.user.id,
+//             },
+//             attributes: ["post_id"]
+//         })
+//         findUserId.map((val) => {
+//             // console.log('Value', val.post_id);
+//             LikeList.push(val.post_id)
+//         })
+//         console.log("list", LikeList)
+
+//         console.log(LikeList.includes(post_id))
+//         if ((LikeList.includes(post_id))) {
+//             const Unlilke = await Like.destroy({
+//                 where: {
+//                     post_id
+//                 }
+//             })
+//             // console.log(Unlilke)
+//             // console.log("UnlilkeID", Unlilke.id)   
+//             if (!Unlilke) {
+//                 return res.status(404).send({
+//                     message: "Unlike not created!"
+//                 })
+//             }
+//             res.status(200).json({
+//                 message: "Unlike created successfully",
+//                 data: Unlilke
+//             })
+//         } else {
+//             res.status(404).json({
+//                 message: "You already unlike this post"
+//             })
+//         }
+//     }
+
+//     catch (err) {
+//         console.log(err)
+//         res.status(500).json({
+//             error: err
+//         })
+//     }
+// }
 
 exports.total_like = async (req, res, next) => {
     // console.log("two", req.user);

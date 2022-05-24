@@ -208,7 +208,7 @@ exports.view_userlist = async (req, res, next) => {
     }
 }
 
-exports.view_following_users = async (req, res, next) => {
+exports.view_following_userlist = async (req, res, next) => {
     // console.log(req.user.id)
     try {
         const user = await db.query(
