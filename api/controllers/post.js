@@ -571,6 +571,39 @@ exports.create_comment = async (req, res, next) => {
     }
 }
 
+exports.view_comment = async (req, res, next) => {
+    // console.log("two", req.user)
+    // console.log("three", req.user.id)
+
+    try {
+        const { post_id } = req.params
+        const comment = await db.query(
+            `SELECT *
+                FROM soapp.comments c 
+                    WHERE c.post_id = ${post_id};`
+            , {
+                type: QueryTypes.SELECT
+            })
+
+        // console.log(comment.length)
+        if (comment.length === 0) {
+            return res.status(404).json("Comment is not found!")
+        }
+
+        res.status(200).json({
+            message: "Comment found successfully",
+            data: comment
+        })
+    }
+
+    catch (err) {
+        console.log(err)
+        res.status(500).json({
+            error: err
+        })
+    }
+}
+
 exports.update_comment = async (req, res, next) => {
     console.log("comment_update", req.params, req.body)
     // console.log("one", req.user.id)
