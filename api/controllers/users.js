@@ -369,13 +369,11 @@ exports.view_followers = async (req, res, next) => {
     try {
         const followers = await db.query(
             `SELECT
-                    COUNT (f.following_user) AS followers
+                COUNT (f.following_user) AS followers
                 FROM 
-                    soapp.follows f,
-                    soapp.users u
-                WHERE 
-                    u.id = f.following_user
-                    AND u.id = ${req.user.id};`
+                    soapp.follows f
+                    WHERE 
+                        f.following_user = ${req.user.id};`
             , {
                 type: QueryTypes.SELECT
             })
@@ -401,13 +399,11 @@ exports.view_following_users = async (req, res, next) => {
     try {
         const following_users = await db.query(
             `SELECT
-                    COUNT (f.user_id) AS following_users
+                COUNT (f.user_id) AS following_users
                 FROM 
-                    soapp.follows f,
-                    soapp.users u
-                WHERE 
-                    u.id = f.user_id
-                    AND u.id = ${req.user.id};`
+                    soapp.follows f
+                    WHERE 
+                        f.user_id = ${req.user.id};`
             , {
                 type: QueryTypes.SELECT
             })
