@@ -578,9 +578,16 @@ exports.view_comment = async (req, res, next) => {
     try {
         const { post_id } = req.params
         const comment = await db.query(
-            `SELECT *
-                FROM soapp.comments c 
-                    WHERE c.post_id = ${post_id};`
+            `SELECT 
+                c.*, 
+                u.first_name, 
+                u.last_name
+            FROM 
+                soapp.comments c, 
+                soapp.users u 
+            WHERE 
+                u.id = c.user_id
+                AND c.post_id = ${post_id};`
             , {
                 type: QueryTypes.SELECT
             })
