@@ -53,49 +53,31 @@ exports.upload_image_to_post = async (req, res, next) => {
     console.log("upload_image", req.file)
     // console.log("two", req.user)
     // console.log("three", req.user.id)
-    const userPosts = []
-    const findUserId = await Post.findAll({
-        where: {
-            user_id: req.user.id,
-        },
-        attributes: ["id"]
-    })
-    findUserId.map((val) => {
-        // console.log('Value', val.id);
-        userPosts.push(val.id)
-    })
-    console.log("list", userPosts)
     try {
         if (req.file === undefined) {
             return res.status(400).send({
-                message: "Image file is missing!"
+                message: "Image file is required!"
             })
         }
-
-        console.log(userPosts.includes(+req.params.post_id))
-        if (userPosts.includes(+req.params.post_id)) {
-            const post = await Post.update({
-                picture: req.file.path
-            }, {
-                where: {
-                    id: req.params.post_id
-                }
-            })
-
-            // console.log(post)
-            // console.log("postID", post.id)   
-            if (!post) {
-                return res.status(404).send({
-                    message: "Image not uploaded!"
-                })
+        const post = await Post.update({
+            picture: req.file.path
+        }, {
+            where: {
+                id: req.params.post_id,
+                user_id: req.user.id
             }
-            res.status(200).json({
-                message: "Image upload successfully",
-                data: post
+        })
+        // console.log(post)
+        // console.log("postID", post.id)   
+        if (post == 0) {
+            return res.status(404).send({
+                message: "Sorry, this is not your post!"
             })
-        } else {
-            return res.status(401).json("Sorry, You are not eligible")
         }
+        res.status(200).json({
+            message: "Image upload successfully",
+            data: post
+        })
     }
 
     catch (err) {
@@ -144,48 +126,35 @@ exports.upload_image_to_post = async (req, res, next) => {
 
 exports.update_post = async (req, res, next) => {
     console.log("post_update", req.params.id, req.body.content)
-    // console.log("one", req.user.id);
-    const userPosts = []
-    const findUserId = await Post.findAll({
-        where: {
-            user_id: req.user.id,
-        },
-        attributes: ["id"]
-    })
-    findUserId.map((val) => {
-        // console.log('Value', val.id);
-        userPosts.push(val.id)
-    })
-    console.log("list", userPosts)
-
+    // console.log("one", req.user.id)
     try {
         const { id } = req.params
         const { content } = req.body
-
-        console.log(userPosts.includes(+req.params.id))
-        if (userPosts.includes(+req.params.id)) {
-            const newPost = await Post.update({
-                content
-                // picture: req.file.filename
-            }, {
-                where: {
-                    id
-                }
+        if (!content) {
+            return res.status(400).send({
+                message: "Content is required!"
             })
-            // console.log(newPost)
-            // console.log("newPostID", newPost.id)   
-            if (!newPost) {
-                return res.status(404).send({
-                    message: "Post not updated!"
-                })
-            }
-            res.status(200).json({
-                message: "Post updated successfully",
-                data: newPost
-            })
-        } else {
-            return res.status(401).json("Sorry, You are not eligible")
         }
+        const newPost = await Post.update({
+            content
+            // picture: req.file.filename
+        }, {
+            where: {
+                id,
+                user_id: req.user.id
+            }
+        })
+        // console.log(newPost)
+        // console.log("newPostID", newPost.id)   
+        if (newPost == 0) {
+            return res.status(404).send({
+                message: "Sorry, this is not your post!"
+            })
+        }
+        res.status(200).json({
+            message: "Post updated successfully",
+            data: newPost
+        })
     }
 
     catch (err) {
@@ -198,43 +167,26 @@ exports.update_post = async (req, res, next) => {
 
 exports.delete_post = async (req, res, next) => {
     console.log("post_delete", req.params)
-    // console.log("one", req.user.id);
-    const userPosts = [];
-    const findUserId = await Post.findAll({
-        where: {
-            user_id: req.user.id,
-        },
-        attributes: ["id"]
-    })
-    findUserId.map((val) => {
-        // console.log('Value', val.id);
-        userPosts.push(val.id)
-    })
-    console.log("list", userPosts)
-
     try {
         const { id } = req.params
-        // console.log(userPosts.includes(+req.body.id))   
-        if (userPosts.includes(+req.params.id)) {
-            const newPost = await Post.destroy({
-                where: {
-                    id
-                }
-            })
-            // console.log(newPost)
-            // console.log("newPostID", newPost.id)  
-            if (!newPost) {
-                return res.status(404).send({
-                    message: "Delete Post not generated!"
-                })
+        // console.log("one", req.user.id);
+        const newPost = await Post.destroy({
+            where: {
+                id,
+                user_id: req.user.id
             }
-            res.status(200).json({
-                message: "Post deleted successfully",
-                data: newPost
+        })
+        if (newPost == 0) {
+            return res.status(404).send({
+                message: "Sorry, this is not your post!"
             })
-        } else {
-            return res.status(401).json("Sorry, You are not eligible")
         }
+        // console.log(newPost)
+        // console.log("newPostID", newPost.id)
+        res.status(200).json({
+            message: "Post deleted successfully",
+            data: newPost
+        })
     }
 
     catch (err) {
