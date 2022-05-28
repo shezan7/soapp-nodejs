@@ -8,7 +8,7 @@ const Comment = require('../sequelize-models/Comment')
 
 
 exports.create_post = async (req, res, next) => {
-    console.log("post_create", req.body);
+    console.log("post_create", req.body)
     // console.log("two", req.user)
     // console.log("three", req.user.id)
 
@@ -16,7 +16,7 @@ exports.create_post = async (req, res, next) => {
         const { content, tag_id } = req.body
         if (!content) {
             return res.status(500).send({
-                message: "Content is missing!"
+                message: "Content is required!"
             })
         }
 
@@ -89,7 +89,7 @@ exports.upload_image_to_post = async (req, res, next) => {
                     message: "Image not uploaded!"
                 })
             }
-            res.json({
+            res.status(200).json({
                 message: "Image upload successfully",
                 data: post
             })
@@ -293,7 +293,7 @@ exports.view_post = async (req, res, next) => {
             })
 
         // console.log(post.length)
-        if (post.length === 0) {
+        if (post.length == 0) {
             return res.status(404).json("Post is not found!")
         }
 
@@ -317,7 +317,7 @@ exports.post_like_unlike = async (req, res, next) => {
         const { post_id } = req.body
         if (!post_id) {
             return res.status(500).send({
-                message: "Post is missing which you want to like"
+                message: "Post id is required!"
             })
         }
 
@@ -493,46 +493,46 @@ exports.post_like_unlike = async (req, res, next) => {
 //     }
 // }
 
-exports.total_like = async (req, res, next) => {
-    // console.log("two", req.user);
-    // console.log("three", req.user.id);
+// exports.total_like = async (req, res, next) => {
+//     // console.log("two", req.user);
+//     // console.log("three", req.user.id);
 
-    // const user_id = req.user.id
+//     // const user_id = req.user.id
 
-    try {
-        const { post_id } = req.params
-        const totalLike = await db.query(
-            `SELECT
-                    COUNT (l.user_id) AS total_like
-                FROM 
-                    soapp.likes l,
-                    soapp.posts p
-                WHERE 
-                    p.id = l.post_id
-                    AND p.id = ${post_id};`
-            , {
-                type: QueryTypes.SELECT
-            })
+//     try {
+//         const { post_id } = req.params
+//         const totalLike = await db.query(
+//             `SELECT
+//                     COUNT (l.user_id) AS total_like
+//                 FROM 
+//                     soapp.likes l,
+//                     soapp.posts p
+//                 WHERE 
+//                     p.id = l.post_id
+//                     AND p.id = ${post_id};`
+//             , {
+//                 type: QueryTypes.SELECT
+//             })
 
-        // console.log(totalLike.length)
-        if (!totalLike) {
-            return res.status(404).send({
-                message: "Problem found to view total like!"
-            })
-        }
-        res.status(200).json({
-            message: "Total like counted successfully",
-            data: totalLike
-        })
-    }
+//         // console.log(totalLike.length)
+//         if (!totalLike) {
+//             return res.status(404).send({
+//                 message: "Problem found to view total like!"
+//             })
+//         }
+//         res.status(200).json({
+//             message: "Total like counted successfully",
+//             data: totalLike
+//         })
+//     }
 
-    catch (err) {
-        console.log(err)
-        res.status(500).json({
-            error: err
-        })
-    }
-}
+//     catch (err) {
+//         console.log(err)
+//         res.status(500).json({
+//             error: err
+//         })
+//     }
+// }
 
 exports.create_comment = async (req, res, next) => {
     console.log("comment_create", req.body)
@@ -541,7 +541,7 @@ exports.create_comment = async (req, res, next) => {
         const { post_id, content } = req.body
         if (!post_id || !content) {
             return res.status(400).send({
-                message: "Content is missing or Post has some problem to create comment"
+                message: "Content and Post id are required!"
             })
         }
 
@@ -593,7 +593,7 @@ exports.view_comment = async (req, res, next) => {
             })
 
         // console.log(comment.length)
-        if (comment.length === 0) {
+        if (comment.length == 0) {
             return res.status(404).json("Comment is not found!")
         }
 
@@ -632,7 +632,7 @@ exports.update_comment = async (req, res, next) => {
         const { content } = req.body
         if (!content) {
             return res.status(400).send({
-                message: "Content is missing"
+                message: "Content is required!"
             })
         }
 

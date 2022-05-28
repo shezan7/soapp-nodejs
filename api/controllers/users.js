@@ -42,7 +42,7 @@ exports.change_password = async (req, res, next) => {
 
     if (!email || !password || !new_password || !confirm_new_password) {
         return res.status(500).send({
-            message: "Some credential is missing!"
+            message: "Some field is missing. All the field are required!"
         })
     }
 
@@ -112,7 +112,7 @@ exports.add_profile_picture = async (req, res, next) => {
         console.log(req.file)
         if (req.file === undefined) {
             return res.status(400).send({
-                message: "Image file is missing"
+                message: "Image file is required!"
             })
         }
         const user = await User.update({
@@ -191,7 +191,7 @@ exports.view_userlist = async (req, res, next) => {
             })
 
         // console.log(user.length)
-        if (user.length === 0) {
+        if (user.length == 0) {
             return res.status(404).json("users not found!")
         }
 
@@ -232,7 +232,7 @@ exports.view_following_userlist = async (req, res, next) => {
             })
 
         // console.log(post.length)
-        if (user.length === 0) {
+        if (user.length == 0) {
             return res.status(404).json("Following users not found!")
         }
 
@@ -255,7 +255,7 @@ exports.users_follow = async (req, res, next) => {
         const { following_user } = req.body
         if (!following_user) {
             return res.status(400).send({
-                message: "following user is missing"
+                message: "following user id is required!"
             })
         }
         // console.log("one", req.user.id);
@@ -312,47 +312,28 @@ exports.users_unfollow = async (req, res, next) => {
         const { following_user } = req.body
         if (!following_user) {
             return res.status(500).send({
-                message: "Following user is missing"
+                message: "following user id is required!"
             })
         }
         // console.log("one", req.user.id);
-        const FollowList = [];
-        const findUserId = await Follow.findAll({
+        const unfollow = await Follow.destroy({
             where: {
-                user_id: req.user.id,
-            },
-            attributes: ["following_user"]
-        })
-        findUserId.map((val) => {
-            // console.log('Value', val.following_user);
-            FollowList.push(val.following_user)
-        })
-        console.log("list", FollowList)
-
-        // console.log(FollowList.includes(following_user))
-        if (FollowList.includes(following_user)) {
-            const unfollow = await Follow.destroy({
-                where: {
-                    following_user
-                }
-            })
-            // console.log(unfollow)
-            // console.log("unfollowID", unfollow.id)   
-            if (!unfollow) {
-                return res.status(404).send({
-                    message: "Unfollow not generated!"
-                })
+                following_user,
+                user_id: req.user.id
             }
-            res.json({
-                message: "Unfollow generated successfully",
-                data: unfollow
-            })
-        } else {
-            res.status(404).json({
-                message: "You already unfollow this user"
+        })
+ 
+        if (unfollow == 0) {
+            return res.status(404).send({
+                message: "This user is not in your following list!!"
             })
         }
-    }
+
+        res.status(200).json({
+            message: "Unfollow generated successfully",
+            data: unfollow
+        })
+    } 
 
     catch (err) {
         console.log(err)

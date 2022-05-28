@@ -13,7 +13,7 @@ exports.users_signup = async (req, res, next) => {
     const { email, password, first_name, last_name, date_of_birth, gender, profile_picture } = req.body
     if (!email || !password || !first_name || !last_name || !date_of_birth || !gender) {
         return res.status(400).send({
-            message: "Some credential is missing!"
+            message: "Some field is missing. All the field are required!"
         })
     }
     const salt = await bcrypt.genSalt(10)
@@ -59,7 +59,7 @@ exports.users_login = async (req, res, next) => {
 
     if (!email || !password) {
         return res.status(400).send({
-            message: "Email or Password is missing!!!"
+            message: "Email and Password are required!!!"
         })
     }
 
@@ -112,7 +112,7 @@ exports.forgot_password = async (req, res, next) => {
 
     if (!email) {
         return res.status(400).send({
-            message: "Email is missing"
+            message: "Email is required!"
         })
     }
 
@@ -187,7 +187,7 @@ exports.reset_password = async (req, res, next) => {
 
     if (!email || !token || !new_password || !confirm_new_password) {
         res.status(500).send({
-            message: "Some credential is missing!"
+            message: "Some field is missing. All the field are required!"
         })
         await PasswordReset.destroy({
             where: {
