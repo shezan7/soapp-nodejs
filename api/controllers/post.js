@@ -208,9 +208,9 @@ exports.view_post = async (req, res, next) => {
                     p.content,
                     p.picture,
                     p.tag_id,
-                    u.id,
                     u.first_name,
                     u.last_name,
+                    u.id as user_id,
                     COUNT (l.user_id) AS total_like
                 FROM
                     soapp.users u,
@@ -240,7 +240,8 @@ exports.view_post = async (req, res, next) => {
                 GROUP BY 
                     p.id, 
                     u.first_name, 
-                    u.last_name;`
+                    u.last_name,
+                    u.id;`
             , {
                 type: QueryTypes.SELECT
             })
