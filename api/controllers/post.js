@@ -208,6 +208,7 @@ exports.view_post = async (req, res, next) => {
                     p.content,
                     p.picture,
                     p.tag_id,
+                    u.id,
                     u.first_name,
                     u.last_name,
                     COUNT (l.user_id) AS total_like
