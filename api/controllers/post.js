@@ -8,7 +8,7 @@ const Comment = require('../sequelize-models/Comment')
 
 
 exports.create_post = async (req, res, next) => {
-    console.log("post_create", req.body);
+    console.log("post_create", req.body)
     // console.log("two", req.user)
     // console.log("three", req.user.id)
 
@@ -16,7 +16,7 @@ exports.create_post = async (req, res, next) => {
         const { content, tag_id } = req.body
         if (!content) {
             return res.status(500).send({
-                message: "Content is missing!"
+                message: "Content is required!"
             })
         }
 
@@ -53,49 +53,31 @@ exports.upload_image_to_post = async (req, res, next) => {
     console.log("upload_image", req.file)
     // console.log("two", req.user)
     // console.log("three", req.user.id)
-    const userPosts = []
-    const findUserId = await Post.findAll({
-        where: {
-            user_id: req.user.id,
-        },
-        attributes: ["id"]
-    })
-    findUserId.map((val) => {
-        // console.log('Value', val.id);
-        userPosts.push(val.id)
-    })
-    console.log("list", userPosts)
     try {
         if (req.file === undefined) {
             return res.status(400).send({
-                message: "Image file is missing!"
+                message: "Image file is required!"
             })
         }
-
-        console.log(userPosts.includes(+req.params.post_id))
-        if (userPosts.includes(+req.params.post_id)) {
-            const post = await Post.update({
-                picture: req.file.path
-            }, {
-                where: {
-                    id: req.params.post_id
-                }
-            })
-
-            // console.log(post)
-            // console.log("postID", post.id)   
-            if (!post) {
-                return res.status(404).send({
-                    message: "Image not uploaded!"
-                })
+        const post = await Post.update({
+            picture: req.file.path
+        }, {
+            where: {
+                id: req.params.post_id,
+                user_id: req.user.id
             }
-            res.json({
-                message: "Image upload successfully",
-                data: post
+        })
+        // console.log(post)
+        // console.log("postID", post.id)   
+        if (post == 0) {
+            return res.status(404).send({
+                message: "Sorry, this is not your post!"
             })
-        } else {
-            return res.status(401).json("Sorry, You are not eligible")
         }
+        res.status(200).json({
+            message: "Image upload successfully",
+            data: post
+        })
     }
 
     catch (err) {
@@ -144,48 +126,35 @@ exports.upload_image_to_post = async (req, res, next) => {
 
 exports.update_post = async (req, res, next) => {
     console.log("post_update", req.params.id, req.body.content)
-    // console.log("one", req.user.id);
-    const userPosts = []
-    const findUserId = await Post.findAll({
-        where: {
-            user_id: req.user.id,
-        },
-        attributes: ["id"]
-    })
-    findUserId.map((val) => {
-        // console.log('Value', val.id);
-        userPosts.push(val.id)
-    })
-    console.log("list", userPosts)
-
+    // console.log("one", req.user.id)
     try {
         const { id } = req.params
         const { content } = req.body
-
-        console.log(userPosts.includes(+req.params.id))
-        if (userPosts.includes(+req.params.id)) {
-            const newPost = await Post.update({
-                content
-                // picture: req.file.filename
-            }, {
-                where: {
-                    id
-                }
+        if (!content) {
+            return res.status(400).send({
+                message: "Content is required!"
             })
-            // console.log(newPost)
-            // console.log("newPostID", newPost.id)   
-            if (!newPost) {
-                return res.status(404).send({
-                    message: "Post not updated!"
-                })
-            }
-            res.status(200).json({
-                message: "Post updated successfully",
-                data: newPost
-            })
-        } else {
-            return res.status(401).json("Sorry, You are not eligible")
         }
+        const newPost = await Post.update({
+            content
+            // picture: req.file.filename
+        }, {
+            where: {
+                id,
+                user_id: req.user.id
+            }
+        })
+        // console.log(newPost)
+        // console.log("newPostID", newPost.id)   
+        if (newPost == 0) {
+            return res.status(404).send({
+                message: "Sorry, this is not your post!"
+            })
+        }
+        res.status(200).json({
+            message: "Post updated successfully",
+            data: newPost
+        })
     }
 
     catch (err) {
@@ -198,43 +167,26 @@ exports.update_post = async (req, res, next) => {
 
 exports.delete_post = async (req, res, next) => {
     console.log("post_delete", req.params)
-    // console.log("one", req.user.id);
-    const userPosts = [];
-    const findUserId = await Post.findAll({
-        where: {
-            user_id: req.user.id,
-        },
-        attributes: ["id"]
-    })
-    findUserId.map((val) => {
-        // console.log('Value', val.id);
-        userPosts.push(val.id)
-    })
-    console.log("list", userPosts)
-
     try {
         const { id } = req.params
-        // console.log(userPosts.includes(+req.body.id))   
-        if (userPosts.includes(+req.params.id)) {
-            const newPost = await Post.destroy({
-                where: {
-                    id
-                }
-            })
-            // console.log(newPost)
-            // console.log("newPostID", newPost.id)  
-            if (!newPost) {
-                return res.status(404).send({
-                    message: "Delete Post not generated!"
-                })
+        // console.log("one", req.user.id);
+        const newPost = await Post.destroy({
+            where: {
+                id,
+                user_id: req.user.id
             }
-            res.status(200).json({
-                message: "Post deleted successfully",
-                data: newPost
+        })
+        if (newPost == 0) {
+            return res.status(404).send({
+                message: "Sorry, this is not your post!"
             })
-        } else {
-            return res.status(401).json("Sorry, You are not eligible")
         }
+        // console.log(newPost)
+        // console.log("newPostID", newPost.id)
+        res.status(200).json({
+            message: "Post deleted successfully",
+            data: newPost
+        })
     }
 
     catch (err) {
@@ -293,7 +245,7 @@ exports.view_post = async (req, res, next) => {
             })
 
         // console.log(post.length)
-        if (post.length === 0) {
+        if (post.length == 0) {
             return res.status(404).json("Post is not found!")
         }
 
@@ -317,7 +269,7 @@ exports.post_like_unlike = async (req, res, next) => {
         const { post_id } = req.body
         if (!post_id) {
             return res.status(500).send({
-                message: "Post is missing which you want to like"
+                message: "Post id is required!"
             })
         }
 
@@ -493,46 +445,46 @@ exports.post_like_unlike = async (req, res, next) => {
 //     }
 // }
 
-exports.total_like = async (req, res, next) => {
-    // console.log("two", req.user);
-    // console.log("three", req.user.id);
+// exports.total_like = async (req, res, next) => {
+//     // console.log("two", req.user);
+//     // console.log("three", req.user.id);
 
-    // const user_id = req.user.id
+//     // const user_id = req.user.id
 
-    try {
-        const { post_id } = req.params
-        const totalLike = await db.query(
-            `SELECT
-                    COUNT (l.user_id) AS total_like
-                FROM 
-                    soapp.likes l,
-                    soapp.posts p
-                WHERE 
-                    p.id = l.post_id
-                    AND p.id = ${post_id};`
-            , {
-                type: QueryTypes.SELECT
-            })
+//     try {
+//         const { post_id } = req.params
+//         const totalLike = await db.query(
+//             `SELECT
+//                     COUNT (l.user_id) AS total_like
+//                 FROM 
+//                     soapp.likes l,
+//                     soapp.posts p
+//                 WHERE 
+//                     p.id = l.post_id
+//                     AND p.id = ${post_id};`
+//             , {
+//                 type: QueryTypes.SELECT
+//             })
 
-        // console.log(totalLike.length)
-        if (!totalLike) {
-            return res.status(404).send({
-                message: "Problem found to view total like!"
-            })
-        }
-        res.status(200).json({
-            message: "Total like counted successfully",
-            data: totalLike
-        })
-    }
+//         // console.log(totalLike.length)
+//         if (!totalLike) {
+//             return res.status(404).send({
+//                 message: "Problem found to view total like!"
+//             })
+//         }
+//         res.status(200).json({
+//             message: "Total like counted successfully",
+//             data: totalLike
+//         })
+//     }
 
-    catch (err) {
-        console.log(err)
-        res.status(500).json({
-            error: err
-        })
-    }
-}
+//     catch (err) {
+//         console.log(err)
+//         res.status(500).json({
+//             error: err
+//         })
+//     }
+// }
 
 exports.create_comment = async (req, res, next) => {
     console.log("comment_create", req.body)
@@ -541,7 +493,7 @@ exports.create_comment = async (req, res, next) => {
         const { post_id, content } = req.body
         if (!post_id || !content) {
             return res.status(400).send({
-                message: "Content is missing or Post has some problem to create comment"
+                message: "Content and Post id are required!"
             })
         }
 
@@ -560,6 +512,46 @@ exports.create_comment = async (req, res, next) => {
         res.status(200).json({
             message: "Comment created successfully",
             data: newComment
+        })
+    }
+
+    catch (err) {
+        console.log(err)
+        res.status(500).json({
+            error: err
+        })
+    }
+}
+
+exports.view_comment = async (req, res, next) => {
+    // console.log("two", req.user)
+    // console.log("three", req.user.id)
+
+    try {
+        const { post_id } = req.params
+        const comment = await db.query(
+            `SELECT 
+                c.*, 
+                u.first_name, 
+                u.last_name
+            FROM 
+                soapp.comments c, 
+                soapp.users u 
+            WHERE 
+                u.id = c.user_id
+                AND c.post_id = ${post_id};`
+            , {
+                type: QueryTypes.SELECT
+            })
+
+        // console.log(comment.length)
+        if (comment.length == 0) {
+            return res.status(404).json("Comment is not found!")
+        }
+
+        res.status(200).json({
+            message: "Comment found successfully",
+            data: comment
         })
     }
 
@@ -592,7 +584,7 @@ exports.update_comment = async (req, res, next) => {
         const { content } = req.body
         if (!content) {
             return res.status(400).send({
-                message: "Content is missing"
+                message: "Content is required!"
             })
         }
 
