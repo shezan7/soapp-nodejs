@@ -288,7 +288,8 @@ exports.view_post = async (req, res, next) => {
                     p.id, 
                     u.first_name, 
                     u.last_name,
-                    u.id;`
+                    u.id
+                ORDER BY p.id DESC;`
             , {
                 type: QueryTypes.SELECT
             })
