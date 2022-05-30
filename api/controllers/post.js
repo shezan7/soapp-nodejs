@@ -246,7 +246,18 @@ exports.view_post = async (req, res, next) => {
                     u.last_name,
                     u.id as user_id,
                     COUNT (l.user_id) AS total_like,
-                    COUNT (c.user_id) AS total_comment
+                    COUNT (c.user_id) AS total_comment,
+                    EXISTS (
+                    SELECT
+                        li.id
+                    FROM
+                        soapp.posts po,
+                        soapp.likes li
+                    WHERE
+                        po.user_id = ${req.user.id}
+                        AND li.user_id = po.user_id
+                        AND li.post_id = p.id
+                    ) as isLike
                 FROM
                     soapp.users u,
                     soapp.posts p
