@@ -10,7 +10,7 @@ router.use(checkAuth)
 
 router.post("/create-post", PostController.create_post)
 
-router.patch("/upload-image-to-post/:post_id", upload.single('image'), PostController.upload_image_to_post)
+// router.patch("/upload-image-to-post/:post_id", upload.single('image'), PostController.upload_image_to_post)
 
 // router.get("/post/get-upload-image/:post_id", PostController.get_upload_image)
 

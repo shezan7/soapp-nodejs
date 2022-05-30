@@ -13,7 +13,7 @@ router.get("/view-profile", UsersController.view_profile)
 
 router.patch("/change-password", UsersController.change_password)
 
-router.patch("/add-profile-picture", upload.single('image'), UsersController.add_profile_picture)
+router.patch("/add-profile-picture", UsersController.add_profile_picture)
 
 router.patch("/update-info", UsersController.users_update)
 

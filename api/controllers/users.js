@@ -109,14 +109,20 @@ exports.change_password = async (req, res, next) => {
 
 exports.add_profile_picture = async (req, res, next) => {
     try {
-        console.log(req.file)
-        if (req.file === undefined) {
-            return res.status(400).send({
-                message: "Image file is required!"
+        // console.log(req.file)
+        // if (req.file === undefined) {
+        //     return res.status(400).send({
+        //         message: "Image file is required!"
+        //     })
+        // }
+        const { imageUrl } = req.body
+        if (!imageUrl) {
+            return res.status(500).send({
+                message: "Image url is required!"
             })
         }
         const user = await User.update({
-            profile_picture: req.file.path
+            profile_picture: imageUrl
         }, {
             where: {
                 id: req.user.id
@@ -128,7 +134,8 @@ exports.add_profile_picture = async (req, res, next) => {
             })
         }
         res.status(200).json({
-            message: "Profile picture updated successfully"
+            message: "Profile picture updated successfully",
+            data: imageUrl
         })
     }
     catch (err) {

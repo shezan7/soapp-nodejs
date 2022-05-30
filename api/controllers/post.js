@@ -13,7 +13,7 @@ exports.create_post = async (req, res, next) => {
     // console.log("three", req.user.id)
 
     try {
-        const { content, tag_id } = req.body
+        const { content, imageUrl, tag_id } = req.body
         if (!content) {
             return res.status(500).send({
                 message: "Content is required!"
@@ -24,6 +24,7 @@ exports.create_post = async (req, res, next) => {
             content,
             // picture: req.file.filename,
             user_id: req.user.id,
+            picture: imageUrl,
             tag_id
         })
 
@@ -48,45 +49,45 @@ exports.create_post = async (req, res, next) => {
     }
 }
 
-exports.upload_image_to_post = async (req, res, next) => {
-    console.log("post_id", req.params.post_id)
-    console.log("upload_image", req.file)
-    // console.log("two", req.user)
-    // console.log("three", req.user.id)
-    try {
-        if (req.file === undefined) {
-            return res.status(400).send({
-                message: "Image file is required!"
-            })
-        }
-        const post = await Post.update({
-            picture: req.file.path
-        }, {
-            where: {
-                id: req.params.post_id,
-                user_id: req.user.id
-            }
-        })
-        // console.log(post)
-        // console.log("postID", post.id)   
-        if (post == 0) {
-            return res.status(404).send({
-                message: "Sorry, this is not your post!"
-            })
-        }
-        res.status(200).json({
-            message: "Image upload successfully",
-            data: post
-        })
-    }
+// exports.upload_image_to_post = async (req, res, next) => {
+//     console.log("post_id", req.params.post_id)
+//     console.log("upload_image", req.body)
+//     // console.log("two", req.user)
+//     // console.log("three", req.user.id)
+//     try {
+//         if (req.file === undefined) {
+//             return res.status(400).send({
+//                 message: "Image file is required!"
+//             })
+//         }
+//         const post = await Post.update({
+//             picture: req.file.path
+//         }, {
+//             where: {
+//                 id: req.params.post_id,
+//                 user_id: req.user.id
+//             }
+//         })
+//         // console.log(post)
+//         // console.log("postID", post.id)   
+//         if (post == 0) {
+//             return res.status(404).send({
+//                 message: "Sorry, this is not your post!"
+//             })
+//         }
+//         res.status(200).json({
+//             message: "Image upload successfully",
+//             data: post,
+//         })
+//     }
 
-    catch (err) {
-        console.log(err)
-        res.status(500).json({
-            error: err
-        })
-    }
-}
+//     catch (err) {
+//         console.log(err)
+//         res.status(500).json({
+//             error: err
+//         })
+//     }
+// }
 
 // exports.get_upload_image = async (req, res, next) => {
 //     console.log("post_id", req.params.post_id)
@@ -125,18 +126,20 @@ exports.upload_image_to_post = async (req, res, next) => {
 // }
 
 exports.update_post = async (req, res, next) => {
-    console.log("post_update", req.params.id, req.body.content)
+    console.log("post_update", req.params, req.body)
     // console.log("one", req.user.id)
     try {
         const { id } = req.params
-        const { content } = req.body
-        if (!content) {
-            return res.status(400).send({
-                message: "Content is required!"
-            })
-        }
+        const { content, imageUrl, tag_id } = req.body
+        // if (!content) {
+        //     return res.status(400).send({
+        //         message: "Content is required!"
+        //     })
+        // }
         const newPost = await Post.update({
-            content
+            content,
+            picture: imageUrl,
+            tag_id
             // picture: req.file.filename
         }, {
             where: {
@@ -153,7 +156,7 @@ exports.update_post = async (req, res, next) => {
         }
         res.status(200).json({
             message: "Post updated successfully",
-            data: newPost
+            data: { content, imageUrl, tag_id }
         })
     }
 
