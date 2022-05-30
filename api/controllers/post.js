@@ -197,6 +197,37 @@ exports.delete_post = async (req, res, next) => {
     }
 }
 
+exports.total_post = async (req, res, next) => {
+    // console.log("two", req.user)
+    // console.log("three", req.user.id)
+
+    try {
+        const totalPost = await db.query(
+            `SELECT 
+                COUNT (*) as total_post
+            FROM
+                soapp.posts p
+            WHERE
+                p.user_id = ${req.user.id};`
+            , {
+                type: QueryTypes.SELECT
+            })
+        // console.log(totalPost)
+        res.status(200).json({
+            message: "Total post counted successfully",
+            data: totalPost
+            // data: { "count": +totalPost[0].count }
+        })
+    }
+
+    catch (err) {
+        console.log(err)
+        res.status(500).json({
+            error: err
+        })
+    }
+}
+
 exports.view_post = async (req, res, next) => {
     // console.log("two", req.user)
     // console.log("three", req.user.id)

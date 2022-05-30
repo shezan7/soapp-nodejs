@@ -18,6 +18,8 @@ router.patch("/update-post/:id", PostController.update_post)
 
 router.delete("/delete-post/:id", PostController.delete_post)
 
+router.get("/total-post", PostController.total_post)
+
 router.get("/view-post", PostController.view_post)
 
 router.post("/like-unlike", PostController.post_like_unlike)
