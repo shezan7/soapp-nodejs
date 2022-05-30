@@ -176,16 +176,67 @@ exports.view_userlist = async (req, res, next) => {
                 u.last_name,
                 u.gender,
                 u.profile_picture
-            FROM
+            FROM 
+                soapp.users u;`
+            , {
+                type: QueryTypes.SELECT
+            })
+
+        // const user = await db.query(
+        //     `SELECT
+        //         u.id,
+        //         u.first_name,
+        //         u.last_name,
+        //         u.gender,
+        //         u.profile_picture
+        //     FROM
+        //         soapp.users u
+        //     WHERE
+        //         u.id NOT IN (SELECT
+        //             f.following_user 
+        //             FROM 
+        //                 soapp.follows f 
+        //                 WHERE 
+        //                     f.user_id = ${req.user.id}
+        //                     OR u.id = ${req.user.id});`
+        //     , {
+        //         type: QueryTypes.SELECT
+        //     })
+
+        // // console.log(user.length)
+        // if (user.length == 0) {
+        //     return res.status(404).json("users not found!")
+        // }
+
+        res.status(200).json({
+            message: "All users find successfully",
+            data: user
+        })
+    }
+    catch (err) {
+        console.log(err)
+        res.status(500).json({
+            error: err
+        })
+    }
+}
+
+exports.view_follower_userlist = async (req, res, next) => {
+    // console.log(req.user.id)
+    try {
+        const user = await db.query(
+            `SELECT
+            u.id,
+            u.first_name,
+            u.last_name,
+            u.gender,
+            u.profile_picture
+            FROM 
+                soapp.follows f,
                 soapp.users u
-            WHERE
-                u.id NOT IN (SELECT
-                    f.following_user 
-                    FROM 
-                        soapp.follows f 
-                        WHERE 
-                            f.user_id = ${req.user.id}
-                            OR u.id = ${req.user.id});`
+                WHERE 
+                    u.id = f.user_id
+                    AND f.following_user = ${req.user.id};`
             , {
                 type: QueryTypes.SELECT
             })
@@ -196,7 +247,7 @@ exports.view_userlist = async (req, res, next) => {
         }
 
         res.status(200).json({
-            message: "All users find successfully",
+            message: "Follower users find successfully",
             data: user
         })
     }
@@ -322,7 +373,7 @@ exports.users_unfollow = async (req, res, next) => {
                 user_id: req.user.id
             }
         })
- 
+
         if (unfollow == 0) {
             return res.status(404).send({
                 message: "This user is not in your following list!!"
@@ -333,7 +384,7 @@ exports.users_unfollow = async (req, res, next) => {
             message: "Unfollow generated successfully",
             data: unfollow
         })
-    } 
+    }
 
     catch (err) {
         console.log(err)

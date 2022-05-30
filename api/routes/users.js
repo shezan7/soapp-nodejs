@@ -19,6 +19,8 @@ router.patch("/update-info", UsersController.users_update)
 
 router.get("/view-userlist", UsersController.view_userlist)
 
+router.get("/view-follower-userlist", UsersController.view_follower_userlist)
+
 router.get("/view-following-userlist", UsersController.view_following_userlist)
 
 router.post("/follow", UsersController.users_follow)
