@@ -245,11 +245,13 @@ exports.view_post = async (req, res, next) => {
                     u.first_name,
                     u.last_name,
                     u.id as user_id,
-                    COUNT (l.user_id) AS total_like
+                    COUNT (l.user_id) AS total_like,
+                    COUNT (c.user_id) AS total_comment
                 FROM
                     soapp.users u,
                     soapp.posts p
                     LEFT JOIN soapp.likes l ON p.id = l.post_id
+                    LEFT JOIN soapp.comments c ON p.id = c.post_id
                 WHERE
                     u.id = p.user_id
                     AND (p.user_id = ${req.user.id}
