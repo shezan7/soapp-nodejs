@@ -16,7 +16,7 @@ router.post("/create-post", PostController.create_post)
 
 router.patch("/update-post/:id", PostController.update_post)
 
-router.delete("/delete-post/:id", PostController.delete_post)
+router.post("/delete-post/:id", PostController.delete_post)
 
 router.get("/total-post", PostController.total_post)
 
@@ -36,7 +36,7 @@ router.get("/view-comment/:post_id", PostController.view_comment)
 
 router.patch("/update-comment/:id", PostController.update_comment)
 
-router.delete("/delete-comment/:id", PostController.delete_comment)
+router.post("/delete-comment/:id", PostController.delete_comment)
 
 
 
