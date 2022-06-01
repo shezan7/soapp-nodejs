@@ -13,11 +13,27 @@ exports.view_profile = async (req, res, next) => {
     try {
         const user = await db.query(
             `SELECT
-                    *
-                FROM
-                    soapp.users u
-                WHERE
-                    u.id = ${req.user.id};`
+                u.*,
+                (
+                SELECT
+                    COUNT (f.user_id)
+                FROM 
+                    soapp.follows f
+                    WHERE 
+                        f.user_id = u.id
+                ) AS total_following_users,
+                (
+                SELECT
+                    COUNT (f.following_user)
+                FROM 
+                    soapp.follows f
+                    WHERE 
+                        f.following_user = u.id
+                ) AS total_followers
+            FROM
+                soapp.users u
+            WHERE
+                 u.id = ${req.user.id};`
             , {
                 type: QueryTypes.SELECT
             })
