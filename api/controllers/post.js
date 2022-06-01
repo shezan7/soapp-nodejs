@@ -257,7 +257,15 @@ exports.view_post = async (req, res, next) => {
                         po.user_id = ${req.user.id}
                         AND li.user_id = po.user_id
                         AND li.post_id = p.id
-                    ) as isLike
+                    ) AS isLike,
+                    (
+                    SELECT
+                        json_agg (co.*)
+                    FROM
+                        soapp.comments co
+                    WHERE
+                        co.post_id = p.id
+                    ) AS comment
                 FROM
                     soapp.users u,
                     soapp.posts p
@@ -589,7 +597,9 @@ exports.view_comment = async (req, res, next) => {
                 soapp.users u 
             WHERE 
                 u.id = c.user_id
-                AND c.post_id = ${post_id};`
+                AND c.post_id = ${post_id}
+            ORDER BY 
+                c.id DESC;`
             , {
                 type: QueryTypes.SELECT
             })
