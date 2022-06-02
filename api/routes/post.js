@@ -20,6 +20,8 @@ router.post("/delete-post/:id", PostController.delete_post)
 
 router.get("/total-post", PostController.total_post)
 
+router.get("/view-users-postlist", PostController.view_users_postlist)
+
 router.get("/view-post", PostController.view_post)
 
 router.post("/like-unlike", PostController.post_like_unlike)

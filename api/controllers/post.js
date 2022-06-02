@@ -231,6 +231,78 @@ exports.total_post = async (req, res, next) => {
     }
 }
 
+exports.view_users_postlist = async (req, res, next) => {
+    // console.log("two", req.user)
+    // console.log("three", req.user.id)
+
+    try {
+        const post = await db.query(
+            `SELECT
+                    p.id,
+                    p.content,
+                    p.picture,
+                    p.tag_id,
+                    u.first_name,
+                    u.last_name,
+                    u.id as user_id,
+                    COUNT (l.user_id) AS total_like,
+                    COUNT (c.user_id) AS total_comment,
+                    EXISTS (
+                    SELECT
+                        li.id
+                    FROM
+                        soapp.posts po,
+                        soapp.likes li
+                    WHERE
+                        po.user_id = ${req.user.id}
+                        AND li.user_id = po.user_id
+                        AND li.post_id = p.id
+                    ) AS isLike,
+                    (
+                    SELECT
+                        json_agg (co.*)
+                    FROM
+                        soapp.comments co
+                    WHERE
+                        co.post_id = p.id
+                    ) AS comment
+                FROM
+                    soapp.users u,
+                    soapp.posts p
+                    LEFT JOIN soapp.likes l ON p.id = l.post_id
+                    LEFT JOIN soapp.comments c ON p.id = c.post_id
+                WHERE
+                    u.id = p.user_id
+                    AND p.user_id = ${req.user.id}
+                GROUP BY 
+                    p.id, 
+                    u.first_name, 
+                    u.last_name,
+                    u.id
+                ORDER BY p.id DESC;`
+            , {
+                type: QueryTypes.SELECT
+            })
+
+        // console.log(post.length)
+        if (post.length == 0) {
+            return res.status(404).json("Post is not found!")
+        }
+
+        res.status(200).json({
+            message: "Post found successfully",
+            data: post
+        })
+    }
+
+    catch (err) {
+        console.log(err)
+        res.status(500).json({
+            error: err
+        })
+    }
+}
+
 exports.view_post = async (req, res, next) => {
     // console.log("two", req.user)
     // console.log("three", req.user.id)
