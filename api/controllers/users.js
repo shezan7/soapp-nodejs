@@ -29,7 +29,15 @@ exports.view_profile = async (req, res, next) => {
                     soapp.follows f
                     WHERE 
                         f.following_user = u.id
-                ) AS total_followers
+                ) AS total_followers,
+                (
+                SELECT
+                    COUNT (p.user_id)
+                FROM 
+                    soapp.posts p
+                    WHERE 
+                        p.user_id = u.id
+                ) AS total_post
             FROM
                 soapp.users u
             WHERE
@@ -72,7 +80,15 @@ exports.view_single_profile = async (req, res, next) => {
                     soapp.follows f
                     WHERE 
                         f.following_user = u.id
-                ) AS total_followers
+                ) AS total_followers,
+                (
+                SELECT
+                    COUNT (p.user_id)
+                FROM 
+                    soapp.posts p
+                    WHERE 
+                        p.user_id = u.id
+                ) AS total_post
             FROM
                 soapp.users u
             WHERE
