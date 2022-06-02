@@ -51,6 +51,49 @@ exports.view_profile = async (req, res, next) => {
     }
 }
 
+exports.view_single_profile = async (req, res, next) => {
+    try {
+        const { user_id } = req.params
+        const user = await db.query(
+            `SELECT
+                u.*,
+                (
+                SELECT
+                    COUNT (f.user_id)
+                FROM 
+                    soapp.follows f
+                    WHERE 
+                        f.user_id = u.id
+                ) AS total_following_users,
+                (
+                SELECT
+                    COUNT (f.following_user)
+                FROM 
+                    soapp.follows f
+                    WHERE 
+                        f.following_user = u.id
+                ) AS total_followers
+            FROM
+                soapp.users u
+            WHERE
+                 u.id = ${user_id};`
+            , {
+                type: QueryTypes.SELECT
+            })
+
+        res.status(200).json({
+            message: "Profile information find successfully",
+            data: user
+        })
+    }
+    catch (err) {
+        console.log(err)
+        res.status(500).json({
+            error: err
+        })
+    }
+}
+
 exports.change_password = async (req, res, next) => {
     console.log("change_password", req.body)
 
