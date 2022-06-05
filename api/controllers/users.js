@@ -149,7 +149,7 @@ exports.view_single_profile = async (req, res, next) => {
 
         res.status(200).json({
             message: "Profile information find successfully",
-            data: user
+            data: user[0]
         })
     }
     catch (err) {
