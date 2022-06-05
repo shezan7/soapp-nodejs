@@ -307,7 +307,16 @@ exports.view_userlist = async (req, res, next) => {
                 u.first_name,
                 u.last_name,
                 u.gender,
-                u.profile_picture
+                u.profile_picture,
+                EXISTS (
+                    SELECT
+                        f.following_user
+                        FROM 
+                            soapp.follows f 
+                            WHERE 
+                                u.id = f.following_user
+                                AND f.user_id = ${req.user.id}
+                    ) as is_follow
             FROM 
                 soapp.users u;`
             , {
