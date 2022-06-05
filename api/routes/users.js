@@ -11,6 +11,8 @@ router.use(checkAuth)
 
 router.get("/view-profile", UsersController.view_profile)
 
+router.get("/view-profile-second", UsersController.view_profile_second)
+
 router.get("/view-single-profile/:user_id", UsersController.view_single_profile)
 
 router.patch("/change-password", UsersController.change_password)
